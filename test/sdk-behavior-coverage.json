@@ -1,0 +1,12 @@
+{
+  "renderedCases": 27,
+  "kinds": [
+    "binary-response",
+    "empty-response",
+    "error-response",
+    "json-request",
+    "json-response",
+    "path-serialization",
+    "query-serialization"
+  ]
+}

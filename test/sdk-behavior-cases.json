@@ -1,0 +1,2163 @@
+{
+  "baseUrl": "https://behavior.test",
+  "operationCount": 92,
+  "credentials": {
+    "bearer": "behavior-bearer-token",
+    "apiKey": "behavior-api-key",
+    "basicUser": "behavior-user",
+    "basicPassword": "behavior-password",
+    "basicHeader": "Basic YmVoYXZpb3ItdXNlcjpiZWhhdmlvci1wYXNzd29yZA=="
+  },
+  "authHeaders": {},
+  "cases": [
+    {
+      "id": "behavior-1",
+      "operationId": "AIService_Transcribe",
+      "kinds": [
+        "error-response",
+        "json-request",
+        "json-response"
+      ],
+      "request": {
+        "method": "POST",
+        "pathTemplate": "/api/v1/ai:transcribe",
+        "pathParameters": {},
+        "query": [],
+        "headers": {},
+        "body": {
+          "audio": {
+            "content": "content",
+            "uri": "https://example.com",
+            "filename": "Example Name",
+            "contentType": "contentType"
+          }
+        },
+        "bodyKind": "json",
+        "contentType": "application/json",
+        "security": []
+      },
+      "expect": {
+        "method": "POST",
+        "path": "/api/v1/ai:transcribe",
+        "query": "",
+        "url": "https://behavior.test/api/v1/ai:transcribe",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "bodyText": "{\"audio\":{\"content\":\"content\",\"uri\":\"https://example.com\",\"filename\":\"Example Name\",\"contentType\":\"contentType\"}}",
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"text\":\"text\"}",
+        "value": {
+          "text": "text"
+        }
+      }
+    },
+    {
+      "id": "behavior-2",
+      "operationId": "AttachmentService_ListAttachments",
+      "kinds": [
+        "error-response",
+        "json-response",
+        "query-serialization"
+      ],
+      "request": {
+        "method": "GET",
+        "pathTemplate": "/api/v1/attachments",
+        "pathParameters": {},
+        "query": [
+          {
+            "name": "pageSize",
+            "style": "form",
+            "explode": true,
+            "value": 30,
+            "serialized": "30"
+          },
+          {
+            "name": "pageToken",
+            "style": "form",
+            "explode": true,
+            "value": "pageToken",
+            "serialized": "pageToken"
+          },
+          {
+            "name": "filter",
+            "style": "form",
+            "explode": true,
+            "value": "filter",
+            "serialized": "filter"
+          },
+          {
+            "name": "orderBy",
+            "style": "form",
+            "explode": true,
+            "value": "orderBy",
+            "serialized": "orderBy"
+          }
+        ],
+        "headers": {},
+        "bodyKind": null,
+        "contentType": null,
+        "security": []
+      },
+      "expect": {
+        "method": "GET",
+        "path": "/api/v1/attachments",
+        "query": "pageSize=30&pageToken=pageToken&filter=filter&orderBy=orderBy",
+        "url": "https://behavior.test/api/v1/attachments?pageSize=30&pageToken=pageToken&filter=filter&orderBy=orderBy",
+        "headers": {},
+        "bodyText": null,
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"attachments\":[{\"name\":\"Example Name\",\"createTime\":\"2024-01-01T00:00:00Z\",\"filename\":\"Example Name\",\"content\":\"content\",\"externalLink\":\"https://example.com\",\"type\":\"type\",\"size\":\"size\",\"memo\":\"memo\",\"motionMedia\":{\"family\":\"MOTION_MEDIA_FAMILY_UNSPECIFIED\",\"role\":\"MOTION_MEDIA_ROLE_UNSPECIFIED\",\"groupId\":\"group-1\",\"presentationTimestampUs\":\"2024-01-01T00:00:00Z\",\"hasEmbeddedVideo\":false},\"mediaMetadata\":{\"width\":1,\"height\":1,\"photo\":{\"captureTime\":{\"localDateTime\":\"2024-01-01T00:00:00Z\",\"utcOffset\":\"utcOffset\"},\"location\":{\"latitude\":1,\"longitude\":1,\"altitudeMeters\":1},\"sourceExifOrientation\":1,\"cameraMake\":\"cameraMake\",\"cameraModel\":\"cameraModel\",\"lensModel\":\"lensModel\",\"fNumber\":1,\"exposureTimeSeconds\":1,\"iso\":1,\"focalLengthMm\":1},\"video\":{\"durationSeconds\":1}},\"creator\":\"creator\"}],\"nextPageToken\":\"nextPageToken\"}",
+        "value": {
+          "attachments": [
+            {
+              "name": "Example Name",
+              "createTime": "2024-01-01T00:00:00Z",
+              "filename": "Example Name",
+              "content": "content",
+              "externalLink": "https://example.com",
+              "type": "type",
+              "size": "size",
+              "memo": "memo",
+              "motionMedia": {
+                "family": "MOTION_MEDIA_FAMILY_UNSPECIFIED",
+                "role": "MOTION_MEDIA_ROLE_UNSPECIFIED",
+                "groupId": "group-1",
+                "presentationTimestampUs": "2024-01-01T00:00:00Z",
+                "hasEmbeddedVideo": false
+              },
+              "mediaMetadata": {
+                "width": 1,
+                "height": 1,
+                "photo": {
+                  "captureTime": {
+                    "localDateTime": "2024-01-01T00:00:00Z",
+                    "utcOffset": "utcOffset"
+                  },
+                  "location": {
+                    "latitude": 1,
+                    "longitude": 1,
+                    "altitudeMeters": 1
+                  },
+                  "sourceExifOrientation": 1,
+                  "cameraMake": "cameraMake",
+                  "cameraModel": "cameraModel",
+                  "lensModel": "lensModel",
+                  "fNumber": 1,
+                  "exposureTimeSeconds": 1,
+                  "iso": 1,
+                  "focalLengthMm": 1
+                },
+                "video": {
+                  "durationSeconds": 1
+                }
+              },
+              "creator": "creator"
+            }
+          ],
+          "nextPageToken": "nextPageToken"
+        }
+      }
+    },
+    {
+      "id": "behavior-3",
+      "operationId": "AttachmentService_CreateAttachment",
+      "kinds": [
+        "error-response",
+        "json-request",
+        "json-response",
+        "query-serialization"
+      ],
+      "request": {
+        "method": "POST",
+        "pathTemplate": "/api/v1/attachments",
+        "pathParameters": {},
+        "query": [
+          {
+            "name": "attachmentId",
+            "style": "form",
+            "explode": true,
+            "value": "attachment-1",
+            "serialized": "attachment-1"
+          }
+        ],
+        "headers": {},
+        "body": {
+          "name": "Example Name",
+          "createTime": "2024-01-01T00:00:00Z",
+          "filename": "Example Name",
+          "content": "content",
+          "externalLink": "https://example.com",
+          "type": "type",
+          "size": "size",
+          "memo": "memo",
+          "motionMedia": {
+            "family": "MOTION_MEDIA_FAMILY_UNSPECIFIED",
+            "role": "MOTION_MEDIA_ROLE_UNSPECIFIED",
+            "groupId": "group-1",
+            "presentationTimestampUs": "2024-01-01T00:00:00Z",
+            "hasEmbeddedVideo": false
+          },
+          "mediaMetadata": {
+            "width": 1,
+            "height": 1,
+            "photo": {
+              "captureTime": {
+                "localDateTime": "2024-01-01T00:00:00Z",
+                "utcOffset": "utcOffset"
+              },
+              "location": {
+                "latitude": 1,
+                "longitude": 1,
+                "altitudeMeters": 1
+              },
+              "sourceExifOrientation": 1,
+              "cameraMake": "cameraMake",
+              "cameraModel": "cameraModel",
+              "lensModel": "lensModel",
+              "fNumber": 1,
+              "exposureTimeSeconds": 1,
+              "iso": 1,
+              "focalLengthMm": 1
+            },
+            "video": {
+              "durationSeconds": 1
+            }
+          },
+          "creator": "creator"
+        },
+        "bodyKind": "json",
+        "contentType": "application/json",
+        "security": []
+      },
+      "expect": {
+        "method": "POST",
+        "path": "/api/v1/attachments",
+        "query": "attachmentId=attachment-1",
+        "url": "https://behavior.test/api/v1/attachments?attachmentId=attachment-1",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "bodyText": "{\"name\":\"Example Name\",\"createTime\":\"2024-01-01T00:00:00Z\",\"filename\":\"Example Name\",\"content\":\"content\",\"externalLink\":\"https://example.com\",\"type\":\"type\",\"size\":\"size\",\"memo\":\"memo\",\"motionMedia\":{\"family\":\"MOTION_MEDIA_FAMILY_UNSPECIFIED\",\"role\":\"MOTION_MEDIA_ROLE_UNSPECIFIED\",\"groupId\":\"group-1\",\"presentationTimestampUs\":\"2024-01-01T00:00:00Z\",\"hasEmbeddedVideo\":false},\"mediaMetadata\":{\"width\":1,\"height\":1,\"photo\":{\"captureTime\":{\"localDateTime\":\"2024-01-01T00:00:00Z\",\"utcOffset\":\"utcOffset\"},\"location\":{\"latitude\":1,\"longitude\":1,\"altitudeMeters\":1},\"sourceExifOrientation\":1,\"cameraMake\":\"cameraMake\",\"cameraModel\":\"cameraModel\",\"lensModel\":\"lensModel\",\"fNumber\":1,\"exposureTimeSeconds\":1,\"iso\":1,\"focalLengthMm\":1},\"video\":{\"durationSeconds\":1}},\"creator\":\"creator\"}",
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"name\":\"Example Name\",\"createTime\":\"2024-01-01T00:00:00Z\",\"filename\":\"Example Name\",\"content\":\"content\",\"externalLink\":\"https://example.com\",\"type\":\"type\",\"size\":\"size\",\"memo\":\"memo\",\"motionMedia\":{\"family\":\"MOTION_MEDIA_FAMILY_UNSPECIFIED\",\"role\":\"MOTION_MEDIA_ROLE_UNSPECIFIED\",\"groupId\":\"group-1\",\"presentationTimestampUs\":\"2024-01-01T00:00:00Z\",\"hasEmbeddedVideo\":false},\"mediaMetadata\":{\"width\":1,\"height\":1,\"photo\":{\"captureTime\":{\"localDateTime\":\"2024-01-01T00:00:00Z\",\"utcOffset\":\"utcOffset\"},\"location\":{\"latitude\":1,\"longitude\":1,\"altitudeMeters\":1},\"sourceExifOrientation\":1,\"cameraMake\":\"cameraMake\",\"cameraModel\":\"cameraModel\",\"lensModel\":\"lensModel\",\"fNumber\":1,\"exposureTimeSeconds\":1,\"iso\":1,\"focalLengthMm\":1},\"video\":{\"durationSeconds\":1}},\"creator\":\"creator\"}",
+        "value": {
+          "name": "Example Name",
+          "createTime": "2024-01-01T00:00:00Z",
+          "filename": "Example Name",
+          "content": "content",
+          "externalLink": "https://example.com",
+          "type": "type",
+          "size": "size",
+          "memo": "memo",
+          "motionMedia": {
+            "family": "MOTION_MEDIA_FAMILY_UNSPECIFIED",
+            "role": "MOTION_MEDIA_ROLE_UNSPECIFIED",
+            "groupId": "group-1",
+            "presentationTimestampUs": "2024-01-01T00:00:00Z",
+            "hasEmbeddedVideo": false
+          },
+          "mediaMetadata": {
+            "width": 1,
+            "height": 1,
+            "photo": {
+              "captureTime": {
+                "localDateTime": "2024-01-01T00:00:00Z",
+                "utcOffset": "utcOffset"
+              },
+              "location": {
+                "latitude": 1,
+                "longitude": 1,
+                "altitudeMeters": 1
+              },
+              "sourceExifOrientation": 1,
+              "cameraMake": "cameraMake",
+              "cameraModel": "cameraModel",
+              "lensModel": "lensModel",
+              "fNumber": 1,
+              "exposureTimeSeconds": 1,
+              "iso": 1,
+              "focalLengthMm": 1
+            },
+            "video": {
+              "durationSeconds": 1
+            }
+          },
+          "creator": "creator"
+        }
+      }
+    },
+    {
+      "id": "behavior-4",
+      "operationId": "AttachmentService_GetAttachment",
+      "kinds": [
+        "error-response",
+        "json-response",
+        "path-serialization"
+      ],
+      "request": {
+        "method": "GET",
+        "pathTemplate": "/api/v1/attachments/{attachment}",
+        "pathParameters": {
+          "attachment": "attachment"
+        },
+        "query": [],
+        "headers": {},
+        "bodyKind": null,
+        "contentType": null,
+        "security": []
+      },
+      "expect": {
+        "method": "GET",
+        "path": "/api/v1/attachments/attachment",
+        "query": "",
+        "url": "https://behavior.test/api/v1/attachments/attachment",
+        "headers": {},
+        "bodyText": null,
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"name\":\"Example Name\",\"createTime\":\"2024-01-01T00:00:00Z\",\"filename\":\"Example Name\",\"content\":\"content\",\"externalLink\":\"https://example.com\",\"type\":\"type\",\"size\":\"size\",\"memo\":\"memo\",\"motionMedia\":{\"family\":\"MOTION_MEDIA_FAMILY_UNSPECIFIED\",\"role\":\"MOTION_MEDIA_ROLE_UNSPECIFIED\",\"groupId\":\"group-1\",\"presentationTimestampUs\":\"2024-01-01T00:00:00Z\",\"hasEmbeddedVideo\":false},\"mediaMetadata\":{\"width\":1,\"height\":1,\"photo\":{\"captureTime\":{\"localDateTime\":\"2024-01-01T00:00:00Z\",\"utcOffset\":\"utcOffset\"},\"location\":{\"latitude\":1,\"longitude\":1,\"altitudeMeters\":1},\"sourceExifOrientation\":1,\"cameraMake\":\"cameraMake\",\"cameraModel\":\"cameraModel\",\"lensModel\":\"lensModel\",\"fNumber\":1,\"exposureTimeSeconds\":1,\"iso\":1,\"focalLengthMm\":1},\"video\":{\"durationSeconds\":1}},\"creator\":\"creator\"}",
+        "value": {
+          "name": "Example Name",
+          "createTime": "2024-01-01T00:00:00Z",
+          "filename": "Example Name",
+          "content": "content",
+          "externalLink": "https://example.com",
+          "type": "type",
+          "size": "size",
+          "memo": "memo",
+          "motionMedia": {
+            "family": "MOTION_MEDIA_FAMILY_UNSPECIFIED",
+            "role": "MOTION_MEDIA_ROLE_UNSPECIFIED",
+            "groupId": "group-1",
+            "presentationTimestampUs": "2024-01-01T00:00:00Z",
+            "hasEmbeddedVideo": false
+          },
+          "mediaMetadata": {
+            "width": 1,
+            "height": 1,
+            "photo": {
+              "captureTime": {
+                "localDateTime": "2024-01-01T00:00:00Z",
+                "utcOffset": "utcOffset"
+              },
+              "location": {
+                "latitude": 1,
+                "longitude": 1,
+                "altitudeMeters": 1
+              },
+              "sourceExifOrientation": 1,
+              "cameraMake": "cameraMake",
+              "cameraModel": "cameraModel",
+              "lensModel": "lensModel",
+              "fNumber": 1,
+              "exposureTimeSeconds": 1,
+              "iso": 1,
+              "focalLengthMm": 1
+            },
+            "video": {
+              "durationSeconds": 1
+            }
+          },
+          "creator": "creator"
+        }
+      }
+    },
+    {
+      "id": "behavior-5",
+      "operationId": "AttachmentService_DeleteAttachment",
+      "kinds": [
+        "empty-response",
+        "error-response",
+        "path-serialization"
+      ],
+      "request": {
+        "method": "DELETE",
+        "pathTemplate": "/api/v1/attachments/{attachment}",
+        "pathParameters": {
+          "attachment": "attachment"
+        },
+        "query": [],
+        "headers": {},
+        "bodyKind": null,
+        "contentType": null,
+        "security": []
+      },
+      "expect": {
+        "method": "DELETE",
+        "path": "/api/v1/attachments/attachment",
+        "query": "",
+        "url": "https://behavior.test/api/v1/attachments/attachment",
+        "headers": {},
+        "bodyText": null,
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "empty",
+        "status": 204,
+        "mediaType": null,
+        "body": "",
+        "value": null
+      }
+    },
+    {
+      "id": "behavior-6",
+      "operationId": "AttachmentService_UpdateAttachment",
+      "kinds": [
+        "error-response",
+        "json-request",
+        "json-response",
+        "path-serialization",
+        "query-serialization"
+      ],
+      "request": {
+        "method": "PATCH",
+        "pathTemplate": "/api/v1/attachments/{attachment}",
+        "pathParameters": {
+          "attachment": "attachment"
+        },
+        "query": [
+          {
+            "name": "updateMask",
+            "style": "form",
+            "explode": true,
+            "value": "2024-01-01T00:00:00Z",
+            "serialized": "2024-01-01T00:00:00Z"
+          }
+        ],
+        "headers": {},
+        "body": {
+          "name": "Example Name",
+          "createTime": "2024-01-01T00:00:00Z",
+          "filename": "Example Name",
+          "content": "content",
+          "externalLink": "https://example.com",
+          "type": "type",
+          "size": "size",
+          "memo": "memo",
+          "motionMedia": {
+            "family": "MOTION_MEDIA_FAMILY_UNSPECIFIED",
+            "role": "MOTION_MEDIA_ROLE_UNSPECIFIED",
+            "groupId": "group-1",
+            "presentationTimestampUs": "2024-01-01T00:00:00Z",
+            "hasEmbeddedVideo": false
+          },
+          "mediaMetadata": {
+            "width": 1,
+            "height": 1,
+            "photo": {
+              "captureTime": {
+                "localDateTime": "2024-01-01T00:00:00Z",
+                "utcOffset": "utcOffset"
+              },
+              "location": {
+                "latitude": 1,
+                "longitude": 1,
+                "altitudeMeters": 1
+              },
+              "sourceExifOrientation": 1,
+              "cameraMake": "cameraMake",
+              "cameraModel": "cameraModel",
+              "lensModel": "lensModel",
+              "fNumber": 1,
+              "exposureTimeSeconds": 1,
+              "iso": 1,
+              "focalLengthMm": 1
+            },
+            "video": {
+              "durationSeconds": 1
+            }
+          },
+          "creator": "creator"
+        },
+        "bodyKind": "json",
+        "contentType": "application/json",
+        "security": []
+      },
+      "expect": {
+        "method": "PATCH",
+        "path": "/api/v1/attachments/attachment",
+        "query": "updateMask=2024-01-01T00%3A00%3A00Z",
+        "url": "https://behavior.test/api/v1/attachments/attachment?updateMask=2024-01-01T00%3A00%3A00Z",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "bodyText": "{\"name\":\"Example Name\",\"createTime\":\"2024-01-01T00:00:00Z\",\"filename\":\"Example Name\",\"content\":\"content\",\"externalLink\":\"https://example.com\",\"type\":\"type\",\"size\":\"size\",\"memo\":\"memo\",\"motionMedia\":{\"family\":\"MOTION_MEDIA_FAMILY_UNSPECIFIED\",\"role\":\"MOTION_MEDIA_ROLE_UNSPECIFIED\",\"groupId\":\"group-1\",\"presentationTimestampUs\":\"2024-01-01T00:00:00Z\",\"hasEmbeddedVideo\":false},\"mediaMetadata\":{\"width\":1,\"height\":1,\"photo\":{\"captureTime\":{\"localDateTime\":\"2024-01-01T00:00:00Z\",\"utcOffset\":\"utcOffset\"},\"location\":{\"latitude\":1,\"longitude\":1,\"altitudeMeters\":1},\"sourceExifOrientation\":1,\"cameraMake\":\"cameraMake\",\"cameraModel\":\"cameraModel\",\"lensModel\":\"lensModel\",\"fNumber\":1,\"exposureTimeSeconds\":1,\"iso\":1,\"focalLengthMm\":1},\"video\":{\"durationSeconds\":1}},\"creator\":\"creator\"}",
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"name\":\"Example Name\",\"createTime\":\"2024-01-01T00:00:00Z\",\"filename\":\"Example Name\",\"content\":\"content\",\"externalLink\":\"https://example.com\",\"type\":\"type\",\"size\":\"size\",\"memo\":\"memo\",\"motionMedia\":{\"family\":\"MOTION_MEDIA_FAMILY_UNSPECIFIED\",\"role\":\"MOTION_MEDIA_ROLE_UNSPECIFIED\",\"groupId\":\"group-1\",\"presentationTimestampUs\":\"2024-01-01T00:00:00Z\",\"hasEmbeddedVideo\":false},\"mediaMetadata\":{\"width\":1,\"height\":1,\"photo\":{\"captureTime\":{\"localDateTime\":\"2024-01-01T00:00:00Z\",\"utcOffset\":\"utcOffset\"},\"location\":{\"latitude\":1,\"longitude\":1,\"altitudeMeters\":1},\"sourceExifOrientation\":1,\"cameraMake\":\"cameraMake\",\"cameraModel\":\"cameraModel\",\"lensModel\":\"lensModel\",\"fNumber\":1,\"exposureTimeSeconds\":1,\"iso\":1,\"focalLengthMm\":1},\"video\":{\"durationSeconds\":1}},\"creator\":\"creator\"}",
+        "value": {
+          "name": "Example Name",
+          "createTime": "2024-01-01T00:00:00Z",
+          "filename": "Example Name",
+          "content": "content",
+          "externalLink": "https://example.com",
+          "type": "type",
+          "size": "size",
+          "memo": "memo",
+          "motionMedia": {
+            "family": "MOTION_MEDIA_FAMILY_UNSPECIFIED",
+            "role": "MOTION_MEDIA_ROLE_UNSPECIFIED",
+            "groupId": "group-1",
+            "presentationTimestampUs": "2024-01-01T00:00:00Z",
+            "hasEmbeddedVideo": false
+          },
+          "mediaMetadata": {
+            "width": 1,
+            "height": 1,
+            "photo": {
+              "captureTime": {
+                "localDateTime": "2024-01-01T00:00:00Z",
+                "utcOffset": "utcOffset"
+              },
+              "location": {
+                "latitude": 1,
+                "longitude": 1,
+                "altitudeMeters": 1
+              },
+              "sourceExifOrientation": 1,
+              "cameraMake": "cameraMake",
+              "cameraModel": "cameraModel",
+              "lensModel": "lensModel",
+              "fNumber": 1,
+              "exposureTimeSeconds": 1,
+              "iso": 1,
+              "focalLengthMm": 1
+            },
+            "video": {
+              "durationSeconds": 1
+            }
+          },
+          "creator": "creator"
+        }
+      }
+    },
+    {
+      "id": "behavior-7",
+      "operationId": "AttachmentService_BatchDeleteAttachments",
+      "kinds": [
+        "empty-response",
+        "error-response",
+        "json-request"
+      ],
+      "request": {
+        "method": "POST",
+        "pathTemplate": "/api/v1/attachments:batchDelete",
+        "pathParameters": {},
+        "query": [],
+        "headers": {},
+        "body": {
+          "names": [
+            "Example Name"
+          ]
+        },
+        "bodyKind": "json",
+        "contentType": "application/json",
+        "security": []
+      },
+      "expect": {
+        "method": "POST",
+        "path": "/api/v1/attachments:batchDelete",
+        "query": "",
+        "url": "https://behavior.test/api/v1/attachments:batchDelete",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "bodyText": "{\"names\":[\"Example Name\"]}",
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "empty",
+        "status": 204,
+        "mediaType": null,
+        "body": "",
+        "value": null
+      }
+    },
+    {
+      "id": "behavior-8",
+      "operationId": "AuthService_GetCurrentUser",
+      "kinds": [
+        "error-response",
+        "json-response"
+      ],
+      "request": {
+        "method": "GET",
+        "pathTemplate": "/api/v1/auth/me",
+        "pathParameters": {},
+        "query": [],
+        "headers": {},
+        "bodyKind": null,
+        "contentType": null,
+        "security": []
+      },
+      "expect": {
+        "method": "GET",
+        "path": "/api/v1/auth/me",
+        "query": "",
+        "url": "https://behavior.test/api/v1/auth/me",
+        "headers": {},
+        "bodyText": null,
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"user\":{\"name\":\"Example Name\",\"role\":\"ROLE_UNSPECIFIED\",\"username\":\"Example Name\",\"email\":\"user@example.com\",\"displayName\":\"Example Name\",\"avatarUrl\":\"https://example.com\",\"description\":\"example text\",\"password\":\"password\",\"state\":\"STATE_UNSPECIFIED\",\"createTime\":\"2024-01-01T00:00:00Z\",\"updateTime\":\"2024-01-01T00:00:00Z\"}}",
+        "value": {
+          "user": {
+            "name": "Example Name",
+            "role": "ROLE_UNSPECIFIED",
+            "username": "Example Name",
+            "email": "user@example.com",
+            "displayName": "Example Name",
+            "avatarUrl": "https://example.com",
+            "description": "example text",
+            "password": "password",
+            "state": "STATE_UNSPECIFIED",
+            "createTime": "2024-01-01T00:00:00Z",
+            "updateTime": "2024-01-01T00:00:00Z"
+          }
+        }
+      }
+    },
+    {
+      "id": "behavior-9",
+      "operationId": "AuthService_SignOut",
+      "kinds": [
+        "empty-response",
+        "error-response"
+      ],
+      "request": {
+        "method": "POST",
+        "pathTemplate": "/api/v1/auth/signout",
+        "pathParameters": {},
+        "query": [],
+        "headers": {},
+        "bodyKind": null,
+        "contentType": null,
+        "security": []
+      },
+      "expect": {
+        "method": "POST",
+        "path": "/api/v1/auth/signout",
+        "query": "",
+        "url": "https://behavior.test/api/v1/auth/signout",
+        "headers": {},
+        "bodyText": null,
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "empty",
+        "status": 204,
+        "mediaType": null,
+        "body": "",
+        "value": null
+      }
+    },
+    {
+      "id": "behavior-10",
+      "operationId": "MemoService_ListMemos",
+      "kinds": [
+        "error-response",
+        "json-response",
+        "query-serialization"
+      ],
+      "request": {
+        "method": "GET",
+        "pathTemplate": "/api/v1/memos",
+        "pathParameters": {},
+        "query": [
+          {
+            "name": "pageSize",
+            "style": "form",
+            "explode": true,
+            "value": 30,
+            "serialized": "30"
+          },
+          {
+            "name": "pageToken",
+            "style": "form",
+            "explode": true,
+            "value": "pageToken",
+            "serialized": "pageToken"
+          },
+          {
+            "name": "state",
+            "style": "form",
+            "explode": true,
+            "value": "STATE_UNSPECIFIED",
+            "serialized": "STATE_UNSPECIFIED"
+          },
+          {
+            "name": "orderBy",
+            "style": "form",
+            "explode": true,
+            "value": "orderBy",
+            "serialized": "orderBy"
+          },
+          {
+            "name": "filter",
+            "style": "form",
+            "explode": true,
+            "value": "filter",
+            "serialized": "filter"
+          },
+          {
+            "name": "showDeleted",
+            "style": "form",
+            "explode": true,
+            "value": false,
+            "serialized": "false"
+          }
+        ],
+        "headers": {},
+        "bodyKind": null,
+        "contentType": null,
+        "security": []
+      },
+      "expect": {
+        "method": "GET",
+        "path": "/api/v1/memos",
+        "query": "pageSize=30&pageToken=pageToken&state=STATE_UNSPECIFIED&orderBy=orderBy&filter=filter&showDeleted=false",
+        "url": "https://behavior.test/api/v1/memos?pageSize=30&pageToken=pageToken&state=STATE_UNSPECIFIED&orderBy=orderBy&filter=filter&showDeleted=false",
+        "headers": {},
+        "bodyText": null,
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"memos\":[{\"name\":\"Example Name\",\"state\":\"STATE_UNSPECIFIED\",\"creator\":\"creator\",\"createTime\":\"2024-01-01T00:00:00Z\",\"updateTime\":\"2024-01-01T00:00:00Z\",\"content\":\"content\",\"visibility\":\"VISIBILITY_UNSPECIFIED\",\"tags\":[\"tags\"],\"pinned\":false,\"attachments\":[{\"name\":\"Example Name\",\"createTime\":\"2024-01-01T00:00:00Z\",\"filename\":\"Example Name\",\"content\":\"content\",\"externalLink\":\"https://example.com\",\"type\":\"type\",\"size\":\"size\",\"memo\":\"memo\",\"motionMedia\":{\"family\":\"MOTION_MEDIA_FAMILY_UNSPECIFIED\",\"role\":\"MOTION_MEDIA_ROLE_UNSPECIFIED\",\"groupId\":\"group-1\",\"presentationTimestampUs\":\"2024-01-01T00:00:00Z\",\"hasEmbeddedVideo\":false},\"mediaMetadata\":{\"width\":1,\"height\":1,\"photo\":{\"captureTime\":{\"localDateTime\":\"\",\"utcOffset\":\"\"},\"location\":{\"latitude\":0,\"longitude\":0,\"altitudeMeters\":0},\"sourceExifOrientation\":1,\"cameraMake\":\"cameraMake\",\"cameraModel\":\"cameraModel\",\"lensModel\":\"lensModel\",\"fNumber\":1,\"exposureTimeSeconds\":1,\"iso\":1,\"focalLengthMm\":1},\"video\":{\"durationSeconds\":1}},\"creator\":\"creator\"}],\"relations\":[{\"memo\":{\"name\":\"Example Name\",\"snippet\":\"snippet\"},\"relatedMemo\":{\"name\":\"Example Name\",\"snippet\":\"snippet\"},\"type\":\"TYPE_UNSPECIFIED\"}],\"reactions\":[{\"name\":\"Example Name\",\"creator\":\"creator\",\"reactionType\":\"reactionType\",\"createTime\":\"2024-01-01T00:00:00Z\"}],\"property\":{\"hasLink\":false,\"hasTaskList\":false,\"hasCode\":false,\"hasIncompleteTasks\":false,\"title\":\"title\"},\"parent\":\"parent\",\"snippet\":\"snippet\",\"location\":{\"placeholder\":\"placeholder\",\"latitude\":1,\"longitude\":1},\"space\":\"space\"}],\"nextPageToken\":\"nextPageToken\"}",
+        "value": {
+          "memos": [
+            {
+              "name": "Example Name",
+              "state": "STATE_UNSPECIFIED",
+              "creator": "creator",
+              "createTime": "2024-01-01T00:00:00Z",
+              "updateTime": "2024-01-01T00:00:00Z",
+              "content": "content",
+              "visibility": "VISIBILITY_UNSPECIFIED",
+              "tags": [
+                "tags"
+              ],
+              "pinned": false,
+              "attachments": [
+                {
+                  "name": "Example Name",
+                  "createTime": "2024-01-01T00:00:00Z",
+                  "filename": "Example Name",
+                  "content": "content",
+                  "externalLink": "https://example.com",
+                  "type": "type",
+                  "size": "size",
+                  "memo": "memo",
+                  "motionMedia": {
+                    "family": "MOTION_MEDIA_FAMILY_UNSPECIFIED",
+                    "role": "MOTION_MEDIA_ROLE_UNSPECIFIED",
+                    "groupId": "group-1",
+                    "presentationTimestampUs": "2024-01-01T00:00:00Z",
+                    "hasEmbeddedVideo": false
+                  },
+                  "mediaMetadata": {
+                    "width": 1,
+                    "height": 1,
+                    "photo": {
+                      "captureTime": {
+                        "localDateTime": "",
+                        "utcOffset": ""
+                      },
+                      "location": {
+                        "latitude": 0,
+                        "longitude": 0,
+                        "altitudeMeters": 0
+                      },
+                      "sourceExifOrientation": 1,
+                      "cameraMake": "cameraMake",
+                      "cameraModel": "cameraModel",
+                      "lensModel": "lensModel",
+                      "fNumber": 1,
+                      "exposureTimeSeconds": 1,
+                      "iso": 1,
+                      "focalLengthMm": 1
+                    },
+                    "video": {
+                      "durationSeconds": 1
+                    }
+                  },
+                  "creator": "creator"
+                }
+              ],
+              "relations": [
+                {
+                  "memo": {
+                    "name": "Example Name",
+                    "snippet": "snippet"
+                  },
+                  "relatedMemo": {
+                    "name": "Example Name",
+                    "snippet": "snippet"
+                  },
+                  "type": "TYPE_UNSPECIFIED"
+                }
+              ],
+              "reactions": [
+                {
+                  "name": "Example Name",
+                  "creator": "creator",
+                  "reactionType": "reactionType",
+                  "createTime": "2024-01-01T00:00:00Z"
+                }
+              ],
+              "property": {
+                "hasLink": false,
+                "hasTaskList": false,
+                "hasCode": false,
+                "hasIncompleteTasks": false,
+                "title": "title"
+              },
+              "parent": "parent",
+              "snippet": "snippet",
+              "location": {
+                "placeholder": "placeholder",
+                "latitude": 1,
+                "longitude": 1
+              },
+              "space": "space"
+            }
+          ],
+          "nextPageToken": "nextPageToken"
+        }
+      }
+    },
+    {
+      "id": "behavior-11",
+      "operationId": "MemoService_GetLinkMetadata",
+      "kinds": [
+        "error-response",
+        "json-response",
+        "query-serialization"
+      ],
+      "request": {
+        "method": "GET",
+        "pathTemplate": "/api/v1/memos/-/linkMetadata",
+        "pathParameters": {},
+        "query": [
+          {
+            "name": "url",
+            "style": "form",
+            "explode": true,
+            "value": "https://example.com",
+            "serialized": "https://example.com"
+          }
+        ],
+        "headers": {},
+        "bodyKind": null,
+        "contentType": null,
+        "security": []
+      },
+      "expect": {
+        "method": "GET",
+        "path": "/api/v1/memos/-/linkMetadata",
+        "query": "url=https%3A%2F%2Fexample.com",
+        "url": "https://behavior.test/api/v1/memos/-/linkMetadata?url=https%3A%2F%2Fexample.com",
+        "headers": {},
+        "bodyText": null,
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"url\":\"https://example.com\",\"title\":\"title\",\"description\":\"example text\",\"image\":\"image\"}",
+        "value": {
+          "url": "https://example.com",
+          "title": "title",
+          "description": "example text",
+          "image": "image"
+        }
+      }
+    },
+    {
+      "id": "behavior-12",
+      "operationId": "MemoService_DeleteMemo",
+      "kinds": [
+        "empty-response",
+        "error-response",
+        "path-serialization",
+        "query-serialization"
+      ],
+      "request": {
+        "method": "DELETE",
+        "pathTemplate": "/api/v1/memos/{memo}",
+        "pathParameters": {
+          "memo": "memo"
+        },
+        "query": [
+          {
+            "name": "force",
+            "style": "form",
+            "explode": true,
+            "value": false,
+            "serialized": "false"
+          }
+        ],
+        "headers": {},
+        "bodyKind": null,
+        "contentType": null,
+        "security": []
+      },
+      "expect": {
+        "method": "DELETE",
+        "path": "/api/v1/memos/memo",
+        "query": "force=false",
+        "url": "https://behavior.test/api/v1/memos/memo?force=false",
+        "headers": {},
+        "bodyText": null,
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "empty",
+        "status": 204,
+        "mediaType": null,
+        "body": "",
+        "value": null
+      }
+    },
+    {
+      "id": "behavior-13",
+      "operationId": "MemoService_ListMemoAttachments",
+      "kinds": [
+        "error-response",
+        "json-response",
+        "path-serialization",
+        "query-serialization"
+      ],
+      "request": {
+        "method": "GET",
+        "pathTemplate": "/api/v1/memos/{memo}/attachments",
+        "pathParameters": {
+          "memo": "memo"
+        },
+        "query": [
+          {
+            "name": "pageSize",
+            "style": "form",
+            "explode": true,
+            "value": 30,
+            "serialized": "30"
+          },
+          {
+            "name": "pageToken",
+            "style": "form",
+            "explode": true,
+            "value": "pageToken",
+            "serialized": "pageToken"
+          }
+        ],
+        "headers": {},
+        "bodyKind": null,
+        "contentType": null,
+        "security": []
+      },
+      "expect": {
+        "method": "GET",
+        "path": "/api/v1/memos/memo/attachments",
+        "query": "pageSize=30&pageToken=pageToken",
+        "url": "https://behavior.test/api/v1/memos/memo/attachments?pageSize=30&pageToken=pageToken",
+        "headers": {},
+        "bodyText": null,
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"attachments\":[{\"name\":\"Example Name\",\"createTime\":\"2024-01-01T00:00:00Z\",\"filename\":\"Example Name\",\"content\":\"content\",\"externalLink\":\"https://example.com\",\"type\":\"type\",\"size\":\"size\",\"memo\":\"memo\",\"motionMedia\":{\"family\":\"MOTION_MEDIA_FAMILY_UNSPECIFIED\",\"role\":\"MOTION_MEDIA_ROLE_UNSPECIFIED\",\"groupId\":\"group-1\",\"presentationTimestampUs\":\"2024-01-01T00:00:00Z\",\"hasEmbeddedVideo\":false},\"mediaMetadata\":{\"width\":1,\"height\":1,\"photo\":{\"captureTime\":{\"localDateTime\":\"2024-01-01T00:00:00Z\",\"utcOffset\":\"utcOffset\"},\"location\":{\"latitude\":1,\"longitude\":1,\"altitudeMeters\":1},\"sourceExifOrientation\":1,\"cameraMake\":\"cameraMake\",\"cameraModel\":\"cameraModel\",\"lensModel\":\"lensModel\",\"fNumber\":1,\"exposureTimeSeconds\":1,\"iso\":1,\"focalLengthMm\":1},\"video\":{\"durationSeconds\":1}},\"creator\":\"creator\"}],\"nextPageToken\":\"nextPageToken\"}",
+        "value": {
+          "attachments": [
+            {
+              "name": "Example Name",
+              "createTime": "2024-01-01T00:00:00Z",
+              "filename": "Example Name",
+              "content": "content",
+              "externalLink": "https://example.com",
+              "type": "type",
+              "size": "size",
+              "memo": "memo",
+              "motionMedia": {
+                "family": "MOTION_MEDIA_FAMILY_UNSPECIFIED",
+                "role": "MOTION_MEDIA_ROLE_UNSPECIFIED",
+                "groupId": "group-1",
+                "presentationTimestampUs": "2024-01-01T00:00:00Z",
+                "hasEmbeddedVideo": false
+              },
+              "mediaMetadata": {
+                "width": 1,
+                "height": 1,
+                "photo": {
+                  "captureTime": {
+                    "localDateTime": "2024-01-01T00:00:00Z",
+                    "utcOffset": "utcOffset"
+                  },
+                  "location": {
+                    "latitude": 1,
+                    "longitude": 1,
+                    "altitudeMeters": 1
+                  },
+                  "sourceExifOrientation": 1,
+                  "cameraMake": "cameraMake",
+                  "cameraModel": "cameraModel",
+                  "lensModel": "lensModel",
+                  "fNumber": 1,
+                  "exposureTimeSeconds": 1,
+                  "iso": 1,
+                  "focalLengthMm": 1
+                },
+                "video": {
+                  "durationSeconds": 1
+                }
+              },
+              "creator": "creator"
+            }
+          ],
+          "nextPageToken": "nextPageToken"
+        }
+      }
+    },
+    {
+      "id": "behavior-14",
+      "operationId": "MemoService_SetMemoAttachments",
+      "kinds": [
+        "empty-response",
+        "error-response",
+        "json-request",
+        "path-serialization"
+      ],
+      "request": {
+        "method": "PATCH",
+        "pathTemplate": "/api/v1/memos/{memo}/attachments",
+        "pathParameters": {
+          "memo": "memo"
+        },
+        "query": [],
+        "headers": {},
+        "body": {
+          "name": "Example Name",
+          "attachments": [
+            {
+              "name": "Example Name",
+              "createTime": "2024-01-01T00:00:00Z",
+              "filename": "Example Name",
+              "content": "content",
+              "externalLink": "https://example.com",
+              "type": "type",
+              "size": "size",
+              "memo": "memo",
+              "motionMedia": {
+                "family": "MOTION_MEDIA_FAMILY_UNSPECIFIED",
+                "role": "MOTION_MEDIA_ROLE_UNSPECIFIED",
+                "groupId": "group-1",
+                "presentationTimestampUs": "2024-01-01T00:00:00Z",
+                "hasEmbeddedVideo": false
+              },
+              "mediaMetadata": {
+                "width": 1,
+                "height": 1,
+                "photo": {
+                  "captureTime": {
+                    "localDateTime": "2024-01-01T00:00:00Z",
+                    "utcOffset": "utcOffset"
+                  },
+                  "location": {
+                    "latitude": 1,
+                    "longitude": 1,
+                    "altitudeMeters": 1
+                  },
+                  "sourceExifOrientation": 1,
+                  "cameraMake": "cameraMake",
+                  "cameraModel": "cameraModel",
+                  "lensModel": "lensModel",
+                  "fNumber": 1,
+                  "exposureTimeSeconds": 1,
+                  "iso": 1,
+                  "focalLengthMm": 1
+                },
+                "video": {
+                  "durationSeconds": 1
+                }
+              },
+              "creator": "creator"
+            }
+          ]
+        },
+        "bodyKind": "json",
+        "contentType": "application/json",
+        "security": []
+      },
+      "expect": {
+        "method": "PATCH",
+        "path": "/api/v1/memos/memo/attachments",
+        "query": "",
+        "url": "https://behavior.test/api/v1/memos/memo/attachments",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "bodyText": "{\"name\":\"Example Name\",\"attachments\":[{\"name\":\"Example Name\",\"createTime\":\"2024-01-01T00:00:00Z\",\"filename\":\"Example Name\",\"content\":\"content\",\"externalLink\":\"https://example.com\",\"type\":\"type\",\"size\":\"size\",\"memo\":\"memo\",\"motionMedia\":{\"family\":\"MOTION_MEDIA_FAMILY_UNSPECIFIED\",\"role\":\"MOTION_MEDIA_ROLE_UNSPECIFIED\",\"groupId\":\"group-1\",\"presentationTimestampUs\":\"2024-01-01T00:00:00Z\",\"hasEmbeddedVideo\":false},\"mediaMetadata\":{\"width\":1,\"height\":1,\"photo\":{\"captureTime\":{\"localDateTime\":\"2024-01-01T00:00:00Z\",\"utcOffset\":\"utcOffset\"},\"location\":{\"latitude\":1,\"longitude\":1,\"altitudeMeters\":1},\"sourceExifOrientation\":1,\"cameraMake\":\"cameraMake\",\"cameraModel\":\"cameraModel\",\"lensModel\":\"lensModel\",\"fNumber\":1,\"exposureTimeSeconds\":1,\"iso\":1,\"focalLengthMm\":1},\"video\":{\"durationSeconds\":1}},\"creator\":\"creator\"}]}",
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "empty",
+        "status": 204,
+        "mediaType": null,
+        "body": "",
+        "value": null
+      }
+    },
+    {
+      "id": "behavior-15",
+      "operationId": "MemoService_ListMemoComments",
+      "kinds": [
+        "error-response",
+        "json-response",
+        "path-serialization",
+        "query-serialization"
+      ],
+      "request": {
+        "method": "GET",
+        "pathTemplate": "/api/v1/memos/{memo}/comments",
+        "pathParameters": {
+          "memo": "memo"
+        },
+        "query": [
+          {
+            "name": "pageSize",
+            "style": "form",
+            "explode": true,
+            "value": 30,
+            "serialized": "30"
+          },
+          {
+            "name": "pageToken",
+            "style": "form",
+            "explode": true,
+            "value": "pageToken",
+            "serialized": "pageToken"
+          },
+          {
+            "name": "orderBy",
+            "style": "form",
+            "explode": true,
+            "value": "orderBy",
+            "serialized": "orderBy"
+          }
+        ],
+        "headers": {},
+        "bodyKind": null,
+        "contentType": null,
+        "security": []
+      },
+      "expect": {
+        "method": "GET",
+        "path": "/api/v1/memos/memo/comments",
+        "query": "pageSize=30&pageToken=pageToken&orderBy=orderBy",
+        "url": "https://behavior.test/api/v1/memos/memo/comments?pageSize=30&pageToken=pageToken&orderBy=orderBy",
+        "headers": {},
+        "bodyText": null,
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"memos\":[{\"name\":\"Example Name\",\"state\":\"STATE_UNSPECIFIED\",\"creator\":\"creator\",\"createTime\":\"2024-01-01T00:00:00Z\",\"updateTime\":\"2024-01-01T00:00:00Z\",\"content\":\"content\",\"visibility\":\"VISIBILITY_UNSPECIFIED\",\"tags\":[\"tags\"],\"pinned\":false,\"attachments\":[{\"name\":\"Example Name\",\"createTime\":\"2024-01-01T00:00:00Z\",\"filename\":\"Example Name\",\"content\":\"content\",\"externalLink\":\"https://example.com\",\"type\":\"type\",\"size\":\"size\",\"memo\":\"memo\",\"motionMedia\":{\"family\":\"MOTION_MEDIA_FAMILY_UNSPECIFIED\",\"role\":\"MOTION_MEDIA_ROLE_UNSPECIFIED\",\"groupId\":\"group-1\",\"presentationTimestampUs\":\"2024-01-01T00:00:00Z\",\"hasEmbeddedVideo\":false},\"mediaMetadata\":{\"width\":1,\"height\":1,\"photo\":{\"captureTime\":{\"localDateTime\":\"\",\"utcOffset\":\"\"},\"location\":{\"latitude\":0,\"longitude\":0,\"altitudeMeters\":0},\"sourceExifOrientation\":1,\"cameraMake\":\"cameraMake\",\"cameraModel\":\"cameraModel\",\"lensModel\":\"lensModel\",\"fNumber\":1,\"exposureTimeSeconds\":1,\"iso\":1,\"focalLengthMm\":1},\"video\":{\"durationSeconds\":1}},\"creator\":\"creator\"}],\"relations\":[{\"memo\":{\"name\":\"Example Name\",\"snippet\":\"snippet\"},\"relatedMemo\":{\"name\":\"Example Name\",\"snippet\":\"snippet\"},\"type\":\"TYPE_UNSPECIFIED\"}],\"reactions\":[{\"name\":\"Example Name\",\"creator\":\"creator\",\"reactionType\":\"reactionType\",\"createTime\":\"2024-01-01T00:00:00Z\"}],\"property\":{\"hasLink\":false,\"hasTaskList\":false,\"hasCode\":false,\"hasIncompleteTasks\":false,\"title\":\"title\"},\"parent\":\"parent\",\"snippet\":\"snippet\",\"location\":{\"placeholder\":\"placeholder\",\"latitude\":1,\"longitude\":1},\"space\":\"space\"}],\"nextPageToken\":\"nextPageToken\"}",
+        "value": {
+          "memos": [
+            {
+              "name": "Example Name",
+              "state": "STATE_UNSPECIFIED",
+              "creator": "creator",
+              "createTime": "2024-01-01T00:00:00Z",
+              "updateTime": "2024-01-01T00:00:00Z",
+              "content": "content",
+              "visibility": "VISIBILITY_UNSPECIFIED",
+              "tags": [
+                "tags"
+              ],
+              "pinned": false,
+              "attachments": [
+                {
+                  "name": "Example Name",
+                  "createTime": "2024-01-01T00:00:00Z",
+                  "filename": "Example Name",
+                  "content": "content",
+                  "externalLink": "https://example.com",
+                  "type": "type",
+                  "size": "size",
+                  "memo": "memo",
+                  "motionMedia": {
+                    "family": "MOTION_MEDIA_FAMILY_UNSPECIFIED",
+                    "role": "MOTION_MEDIA_ROLE_UNSPECIFIED",
+                    "groupId": "group-1",
+                    "presentationTimestampUs": "2024-01-01T00:00:00Z",
+                    "hasEmbeddedVideo": false
+                  },
+                  "mediaMetadata": {
+                    "width": 1,
+                    "height": 1,
+                    "photo": {
+                      "captureTime": {
+                        "localDateTime": "",
+                        "utcOffset": ""
+                      },
+                      "location": {
+                        "latitude": 0,
+                        "longitude": 0,
+                        "altitudeMeters": 0
+                      },
+                      "sourceExifOrientation": 1,
+                      "cameraMake": "cameraMake",
+                      "cameraModel": "cameraModel",
+                      "lensModel": "lensModel",
+                      "fNumber": 1,
+                      "exposureTimeSeconds": 1,
+                      "iso": 1,
+                      "focalLengthMm": 1
+                    },
+                    "video": {
+                      "durationSeconds": 1
+                    }
+                  },
+                  "creator": "creator"
+                }
+              ],
+              "relations": [
+                {
+                  "memo": {
+                    "name": "Example Name",
+                    "snippet": "snippet"
+                  },
+                  "relatedMemo": {
+                    "name": "Example Name",
+                    "snippet": "snippet"
+                  },
+                  "type": "TYPE_UNSPECIFIED"
+                }
+              ],
+              "reactions": [
+                {
+                  "name": "Example Name",
+                  "creator": "creator",
+                  "reactionType": "reactionType",
+                  "createTime": "2024-01-01T00:00:00Z"
+                }
+              ],
+              "property": {
+                "hasLink": false,
+                "hasTaskList": false,
+                "hasCode": false,
+                "hasIncompleteTasks": false,
+                "title": "title"
+              },
+              "parent": "parent",
+              "snippet": "snippet",
+              "location": {
+                "placeholder": "placeholder",
+                "latitude": 1,
+                "longitude": 1
+              },
+              "space": "space"
+            }
+          ],
+          "nextPageToken": "nextPageToken"
+        }
+      }
+    },
+    {
+      "id": "behavior-16",
+      "operationId": "MemoService_CreateMemoComment",
+      "kinds": [
+        "error-response",
+        "json-request",
+        "json-response",
+        "path-serialization",
+        "query-serialization"
+      ],
+      "request": {
+        "method": "POST",
+        "pathTemplate": "/api/v1/memos/{memo}/comments",
+        "pathParameters": {
+          "memo": "memo"
+        },
+        "query": [
+          {
+            "name": "commentId",
+            "style": "form",
+            "explode": true,
+            "value": "comment-1",
+            "serialized": "comment-1"
+          }
+        ],
+        "headers": {},
+        "body": {
+          "name": "Example Name",
+          "state": "STATE_UNSPECIFIED",
+          "creator": "creator",
+          "createTime": "2024-01-01T00:00:00Z",
+          "updateTime": "2024-01-01T00:00:00Z",
+          "content": "content",
+          "visibility": "VISIBILITY_UNSPECIFIED",
+          "tags": [
+            "tags"
+          ],
+          "pinned": false,
+          "attachments": [
+            {
+              "name": "Example Name",
+              "createTime": "2024-01-01T00:00:00Z",
+              "filename": "Example Name",
+              "content": "content",
+              "externalLink": "https://example.com",
+              "type": "type",
+              "size": "size",
+              "memo": "memo",
+              "motionMedia": {
+                "family": "MOTION_MEDIA_FAMILY_UNSPECIFIED",
+                "role": "MOTION_MEDIA_ROLE_UNSPECIFIED",
+                "groupId": "group-1",
+                "presentationTimestampUs": "2024-01-01T00:00:00Z",
+                "hasEmbeddedVideo": false
+              },
+              "mediaMetadata": {
+                "width": 1,
+                "height": 1,
+                "photo": {
+                  "captureTime": {
+                    "localDateTime": "2024-01-01T00:00:00Z",
+                    "utcOffset": "utcOffset"
+                  },
+                  "location": {
+                    "latitude": 1,
+                    "longitude": 1,
+                    "altitudeMeters": 1
+                  },
+                  "sourceExifOrientation": 1,
+                  "cameraMake": "cameraMake",
+                  "cameraModel": "cameraModel",
+                  "lensModel": "lensModel",
+                  "fNumber": 1,
+                  "exposureTimeSeconds": 1,
+                  "iso": 1,
+                  "focalLengthMm": 1
+                },
+                "video": {
+                  "durationSeconds": 1
+                }
+              },
+              "creator": "creator"
+            }
+          ],
+          "relations": [
+            {
+              "memo": {
+                "name": "Example Name",
+                "snippet": "snippet"
+              },
+              "relatedMemo": {
+                "name": "Example Name",
+                "snippet": "snippet"
+              },
+              "type": "TYPE_UNSPECIFIED"
+            }
+          ],
+          "reactions": [
+            {
+              "name": "Example Name",
+              "creator": "creator",
+              "reactionType": "reactionType",
+              "createTime": "2024-01-01T00:00:00Z"
+            }
+          ],
+          "property": {
+            "hasLink": false,
+            "hasTaskList": false,
+            "hasCode": false,
+            "hasIncompleteTasks": false,
+            "title": "title"
+          },
+          "parent": "parent",
+          "snippet": "snippet",
+          "location": {
+            "placeholder": "placeholder",
+            "latitude": 1,
+            "longitude": 1
+          },
+          "space": "space"
+        },
+        "bodyKind": "json",
+        "contentType": "application/json",
+        "security": []
+      },
+      "expect": {
+        "method": "POST",
+        "path": "/api/v1/memos/memo/comments",
+        "query": "commentId=comment-1",
+        "url": "https://behavior.test/api/v1/memos/memo/comments?commentId=comment-1",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "bodyText": "{\"name\":\"Example Name\",\"state\":\"STATE_UNSPECIFIED\",\"creator\":\"creator\",\"createTime\":\"2024-01-01T00:00:00Z\",\"updateTime\":\"2024-01-01T00:00:00Z\",\"content\":\"content\",\"visibility\":\"VISIBILITY_UNSPECIFIED\",\"tags\":[\"tags\"],\"pinned\":false,\"attachments\":[{\"name\":\"Example Name\",\"createTime\":\"2024-01-01T00:00:00Z\",\"filename\":\"Example Name\",\"content\":\"content\",\"externalLink\":\"https://example.com\",\"type\":\"type\",\"size\":\"size\",\"memo\":\"memo\",\"motionMedia\":{\"family\":\"MOTION_MEDIA_FAMILY_UNSPECIFIED\",\"role\":\"MOTION_MEDIA_ROLE_UNSPECIFIED\",\"groupId\":\"group-1\",\"presentationTimestampUs\":\"2024-01-01T00:00:00Z\",\"hasEmbeddedVideo\":false},\"mediaMetadata\":{\"width\":1,\"height\":1,\"photo\":{\"captureTime\":{\"localDateTime\":\"2024-01-01T00:00:00Z\",\"utcOffset\":\"utcOffset\"},\"location\":{\"latitude\":1,\"longitude\":1,\"altitudeMeters\":1},\"sourceExifOrientation\":1,\"cameraMake\":\"cameraMake\",\"cameraModel\":\"cameraModel\",\"lensModel\":\"lensModel\",\"fNumber\":1,\"exposureTimeSeconds\":1,\"iso\":1,\"focalLengthMm\":1},\"video\":{\"durationSeconds\":1}},\"creator\":\"creator\"}],\"relations\":[{\"memo\":{\"name\":\"Example Name\",\"snippet\":\"snippet\"},\"relatedMemo\":{\"name\":\"Example Name\",\"snippet\":\"snippet\"},\"type\":\"TYPE_UNSPECIFIED\"}],\"reactions\":[{\"name\":\"Example Name\",\"creator\":\"creator\",\"reactionType\":\"reactionType\",\"createTime\":\"2024-01-01T00:00:00Z\"}],\"property\":{\"hasLink\":false,\"hasTaskList\":false,\"hasCode\":false,\"hasIncompleteTasks\":false,\"title\":\"title\"},\"parent\":\"parent\",\"snippet\":\"snippet\",\"location\":{\"placeholder\":\"placeholder\",\"latitude\":1,\"longitude\":1},\"space\":\"space\"}",
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"name\":\"Example Name\",\"state\":\"STATE_UNSPECIFIED\",\"creator\":\"creator\",\"createTime\":\"2024-01-01T00:00:00Z\",\"updateTime\":\"2024-01-01T00:00:00Z\",\"content\":\"content\",\"visibility\":\"VISIBILITY_UNSPECIFIED\",\"tags\":[\"tags\"],\"pinned\":false,\"attachments\":[{\"name\":\"Example Name\",\"createTime\":\"2024-01-01T00:00:00Z\",\"filename\":\"Example Name\",\"content\":\"content\",\"externalLink\":\"https://example.com\",\"type\":\"type\",\"size\":\"size\",\"memo\":\"memo\",\"motionMedia\":{\"family\":\"MOTION_MEDIA_FAMILY_UNSPECIFIED\",\"role\":\"MOTION_MEDIA_ROLE_UNSPECIFIED\",\"groupId\":\"group-1\",\"presentationTimestampUs\":\"2024-01-01T00:00:00Z\",\"hasEmbeddedVideo\":false},\"mediaMetadata\":{\"width\":1,\"height\":1,\"photo\":{\"captureTime\":{\"localDateTime\":\"2024-01-01T00:00:00Z\",\"utcOffset\":\"utcOffset\"},\"location\":{\"latitude\":1,\"longitude\":1,\"altitudeMeters\":1},\"sourceExifOrientation\":1,\"cameraMake\":\"cameraMake\",\"cameraModel\":\"cameraModel\",\"lensModel\":\"lensModel\",\"fNumber\":1,\"exposureTimeSeconds\":1,\"iso\":1,\"focalLengthMm\":1},\"video\":{\"durationSeconds\":1}},\"creator\":\"creator\"}],\"relations\":[{\"memo\":{\"name\":\"Example Name\",\"snippet\":\"snippet\"},\"relatedMemo\":{\"name\":\"Example Name\",\"snippet\":\"snippet\"},\"type\":\"TYPE_UNSPECIFIED\"}],\"reactions\":[{\"name\":\"Example Name\",\"creator\":\"creator\",\"reactionType\":\"reactionType\",\"createTime\":\"2024-01-01T00:00:00Z\"}],\"property\":{\"hasLink\":false,\"hasTaskList\":false,\"hasCode\":false,\"hasIncompleteTasks\":false,\"title\":\"title\"},\"parent\":\"parent\",\"snippet\":\"snippet\",\"location\":{\"placeholder\":\"placeholder\",\"latitude\":1,\"longitude\":1},\"space\":\"space\"}",
+        "value": {
+          "name": "Example Name",
+          "state": "STATE_UNSPECIFIED",
+          "creator": "creator",
+          "createTime": "2024-01-01T00:00:00Z",
+          "updateTime": "2024-01-01T00:00:00Z",
+          "content": "content",
+          "visibility": "VISIBILITY_UNSPECIFIED",
+          "tags": [
+            "tags"
+          ],
+          "pinned": false,
+          "attachments": [
+            {
+              "name": "Example Name",
+              "createTime": "2024-01-01T00:00:00Z",
+              "filename": "Example Name",
+              "content": "content",
+              "externalLink": "https://example.com",
+              "type": "type",
+              "size": "size",
+              "memo": "memo",
+              "motionMedia": {
+                "family": "MOTION_MEDIA_FAMILY_UNSPECIFIED",
+                "role": "MOTION_MEDIA_ROLE_UNSPECIFIED",
+                "groupId": "group-1",
+                "presentationTimestampUs": "2024-01-01T00:00:00Z",
+                "hasEmbeddedVideo": false
+              },
+              "mediaMetadata": {
+                "width": 1,
+                "height": 1,
+                "photo": {
+                  "captureTime": {
+                    "localDateTime": "2024-01-01T00:00:00Z",
+                    "utcOffset": "utcOffset"
+                  },
+                  "location": {
+                    "latitude": 1,
+                    "longitude": 1,
+                    "altitudeMeters": 1
+                  },
+                  "sourceExifOrientation": 1,
+                  "cameraMake": "cameraMake",
+                  "cameraModel": "cameraModel",
+                  "lensModel": "lensModel",
+                  "fNumber": 1,
+                  "exposureTimeSeconds": 1,
+                  "iso": 1,
+                  "focalLengthMm": 1
+                },
+                "video": {
+                  "durationSeconds": 1
+                }
+              },
+              "creator": "creator"
+            }
+          ],
+          "relations": [
+            {
+              "memo": {
+                "name": "Example Name",
+                "snippet": "snippet"
+              },
+              "relatedMemo": {
+                "name": "Example Name",
+                "snippet": "snippet"
+              },
+              "type": "TYPE_UNSPECIFIED"
+            }
+          ],
+          "reactions": [
+            {
+              "name": "Example Name",
+              "creator": "creator",
+              "reactionType": "reactionType",
+              "createTime": "2024-01-01T00:00:00Z"
+            }
+          ],
+          "property": {
+            "hasLink": false,
+            "hasTaskList": false,
+            "hasCode": false,
+            "hasIncompleteTasks": false,
+            "title": "title"
+          },
+          "parent": "parent",
+          "snippet": "snippet",
+          "location": {
+            "placeholder": "placeholder",
+            "latitude": 1,
+            "longitude": 1
+          },
+          "space": "space"
+        }
+      }
+    },
+    {
+      "id": "behavior-17",
+      "operationId": "MemoService_UpsertMemoReaction",
+      "kinds": [
+        "error-response",
+        "json-request",
+        "json-response",
+        "path-serialization"
+      ],
+      "request": {
+        "method": "POST",
+        "pathTemplate": "/api/v1/memos/{memo}/reactions",
+        "pathParameters": {
+          "memo": "memo"
+        },
+        "query": [],
+        "headers": {},
+        "body": {
+          "name": "Example Name",
+          "reaction": {
+            "name": "Example Name",
+            "creator": "creator",
+            "reactionType": "reactionType",
+            "createTime": "2024-01-01T00:00:00Z"
+          }
+        },
+        "bodyKind": "json",
+        "contentType": "application/json",
+        "security": []
+      },
+      "expect": {
+        "method": "POST",
+        "path": "/api/v1/memos/memo/reactions",
+        "query": "",
+        "url": "https://behavior.test/api/v1/memos/memo/reactions",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "bodyText": "{\"name\":\"Example Name\",\"reaction\":{\"name\":\"Example Name\",\"creator\":\"creator\",\"reactionType\":\"reactionType\",\"createTime\":\"2024-01-01T00:00:00Z\"}}",
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"name\":\"Example Name\",\"creator\":\"creator\",\"reactionType\":\"reactionType\",\"createTime\":\"2024-01-01T00:00:00Z\"}",
+        "value": {
+          "name": "Example Name",
+          "creator": "creator",
+          "reactionType": "reactionType",
+          "createTime": "2024-01-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "behavior-18",
+      "operationId": "MemoService_DeleteMemoReaction",
+      "kinds": [
+        "empty-response",
+        "error-response",
+        "path-serialization"
+      ],
+      "request": {
+        "method": "DELETE",
+        "pathTemplate": "/api/v1/memos/{memo}/reactions/{reaction}",
+        "pathParameters": {
+          "memo": "memo",
+          "reaction": "reaction"
+        },
+        "query": [],
+        "headers": {},
+        "bodyKind": null,
+        "contentType": null,
+        "security": []
+      },
+      "expect": {
+        "method": "DELETE",
+        "path": "/api/v1/memos/memo/reactions/reaction",
+        "query": "",
+        "url": "https://behavior.test/api/v1/memos/memo/reactions/reaction",
+        "headers": {},
+        "bodyText": null,
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "empty",
+        "status": 204,
+        "mediaType": null,
+        "body": "",
+        "value": null
+      }
+    },
+    {
+      "id": "behavior-19",
+      "operationId": "SpaceService_ListSpaces",
+      "kinds": [
+        "error-response",
+        "json-response",
+        "query-serialization"
+      ],
+      "request": {
+        "method": "GET",
+        "pathTemplate": "/api/v1/spaces",
+        "pathParameters": {},
+        "query": [
+          {
+            "name": "pageSize",
+            "style": "form",
+            "explode": true,
+            "value": 30,
+            "serialized": "30"
+          },
+          {
+            "name": "pageToken",
+            "style": "form",
+            "explode": true,
+            "value": "pageToken",
+            "serialized": "pageToken"
+          }
+        ],
+        "headers": {},
+        "bodyKind": null,
+        "contentType": null,
+        "security": []
+      },
+      "expect": {
+        "method": "GET",
+        "path": "/api/v1/spaces",
+        "query": "pageSize=30&pageToken=pageToken",
+        "url": "https://behavior.test/api/v1/spaces?pageSize=30&pageToken=pageToken",
+        "headers": {},
+        "bodyText": null,
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"spaces\":[{\"name\":\"Example Name\",\"title\":\"title\",\"description\":\"example text\",\"currentUserRole\":\"ROLE_UNSPECIFIED\",\"memberCount\":1,\"icon\":{\"emoji\":\"emoji\",\"lucide\":\"lucide\"}}],\"nextPageToken\":\"nextPageToken\"}",
+        "value": {
+          "spaces": [
+            {
+              "name": "Example Name",
+              "title": "title",
+              "description": "example text",
+              "currentUserRole": "ROLE_UNSPECIFIED",
+              "memberCount": 1,
+              "icon": {
+                "emoji": "emoji",
+                "lucide": "lucide"
+              }
+            }
+          ],
+          "nextPageToken": "nextPageToken"
+        }
+      }
+    },
+    {
+      "id": "behavior-20",
+      "operationId": "SpaceService_GetSpaceInvitation",
+      "kinds": [
+        "error-response",
+        "json-response",
+        "path-serialization"
+      ],
+      "request": {
+        "method": "GET",
+        "pathTemplate": "/api/v1/spaces/{space}/invitations/{invitation}",
+        "pathParameters": {
+          "space": "space",
+          "invitation": "invitation"
+        },
+        "query": [],
+        "headers": {},
+        "bodyKind": null,
+        "contentType": null,
+        "security": []
+      },
+      "expect": {
+        "method": "GET",
+        "path": "/api/v1/spaces/space/invitations/invitation",
+        "query": "",
+        "url": "https://behavior.test/api/v1/spaces/space/invitations/invitation",
+        "headers": {},
+        "bodyText": null,
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"name\":\"Example Name\",\"invitee\":\"invitee\",\"role\":\"ROLE_UNSPECIFIED\",\"space\":{\"name\":\"Example Name\",\"title\":\"title\",\"description\":\"example text\",\"currentUserRole\":\"ROLE_UNSPECIFIED\",\"memberCount\":1,\"icon\":{\"emoji\":\"emoji\",\"lucide\":\"lucide\"}}}",
+        "value": {
+          "name": "Example Name",
+          "invitee": "invitee",
+          "role": "ROLE_UNSPECIFIED",
+          "space": {
+            "name": "Example Name",
+            "title": "title",
+            "description": "example text",
+            "currentUserRole": "ROLE_UNSPECIFIED",
+            "memberCount": 1,
+            "icon": {
+              "emoji": "emoji",
+              "lucide": "lucide"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "behavior-21",
+      "operationId": "SpaceService_AcceptSpaceInvitation",
+      "kinds": [
+        "error-response",
+        "json-request",
+        "json-response",
+        "path-serialization"
+      ],
+      "request": {
+        "method": "POST",
+        "pathTemplate": "/api/v1/spaces/{space}/invitations/{invitation}:accept",
+        "pathParameters": {
+          "space": "space",
+          "invitation": "invitation"
+        },
+        "query": [],
+        "headers": {},
+        "body": {
+          "name": "Example Name"
+        },
+        "bodyKind": "json",
+        "contentType": "application/json",
+        "security": []
+      },
+      "expect": {
+        "method": "POST",
+        "path": "/api/v1/spaces/space/invitations/invitation:accept",
+        "query": "",
+        "url": "https://behavior.test/api/v1/spaces/space/invitations/invitation:accept",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "bodyText": "{\"name\":\"Example Name\"}",
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"name\":\"Example Name\",\"user\":\"user\",\"role\":\"ROLE_UNSPECIFIED\"}",
+        "value": {
+          "name": "Example Name",
+          "user": "user",
+          "role": "ROLE_UNSPECIFIED"
+        }
+      }
+    },
+    {
+      "id": "behavior-22",
+      "operationId": "SpaceService_DeclineSpaceInvitation",
+      "kinds": [
+        "empty-response",
+        "error-response",
+        "json-request",
+        "path-serialization"
+      ],
+      "request": {
+        "method": "POST",
+        "pathTemplate": "/api/v1/spaces/{space}/invitations/{invitation}:decline",
+        "pathParameters": {
+          "space": "space",
+          "invitation": "invitation"
+        },
+        "query": [],
+        "headers": {},
+        "body": {
+          "name": "Example Name"
+        },
+        "bodyKind": "json",
+        "contentType": "application/json",
+        "security": []
+      },
+      "expect": {
+        "method": "POST",
+        "path": "/api/v1/spaces/space/invitations/invitation:decline",
+        "query": "",
+        "url": "https://behavior.test/api/v1/spaces/space/invitations/invitation:decline",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "bodyText": "{\"name\":\"Example Name\"}",
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "empty",
+        "status": 204,
+        "mediaType": null,
+        "body": "",
+        "value": null
+      }
+    },
+    {
+      "id": "behavior-23",
+      "operationId": "SpaceService_UpdateSpaceMember",
+      "kinds": [
+        "error-response",
+        "json-request",
+        "json-response",
+        "path-serialization",
+        "query-serialization"
+      ],
+      "request": {
+        "method": "PATCH",
+        "pathTemplate": "/api/v1/spaces/{space}/members/{member}",
+        "pathParameters": {
+          "space": "space",
+          "member": "member"
+        },
+        "query": [
+          {
+            "name": "updateMask",
+            "style": "form",
+            "explode": true,
+            "value": "2024-01-01T00:00:00Z",
+            "serialized": "2024-01-01T00:00:00Z"
+          }
+        ],
+        "headers": {},
+        "body": {
+          "name": "Example Name",
+          "user": "user",
+          "role": "ROLE_UNSPECIFIED"
+        },
+        "bodyKind": "json",
+        "contentType": "application/json",
+        "security": []
+      },
+      "expect": {
+        "method": "PATCH",
+        "path": "/api/v1/spaces/space/members/member",
+        "query": "updateMask=2024-01-01T00%3A00%3A00Z",
+        "url": "https://behavior.test/api/v1/spaces/space/members/member?updateMask=2024-01-01T00%3A00%3A00Z",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "bodyText": "{\"name\":\"Example Name\",\"user\":\"user\",\"role\":\"ROLE_UNSPECIFIED\"}",
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"name\":\"Example Name\",\"user\":\"user\",\"role\":\"ROLE_UNSPECIFIED\"}",
+        "value": {
+          "name": "Example Name",
+          "user": "user",
+          "role": "ROLE_UNSPECIFIED"
+        }
+      }
+    },
+    {
+      "id": "behavior-24",
+      "operationId": "UserService_CreateUser",
+      "kinds": [
+        "error-response",
+        "json-request",
+        "json-response",
+        "query-serialization"
+      ],
+      "request": {
+        "method": "POST",
+        "pathTemplate": "/api/v1/users",
+        "pathParameters": {},
+        "query": [
+          {
+            "name": "userId",
+            "style": "form",
+            "explode": true,
+            "value": "user-1",
+            "serialized": "user-1"
+          },
+          {
+            "name": "validateOnly",
+            "style": "form",
+            "explode": true,
+            "value": false,
+            "serialized": "false"
+          },
+          {
+            "name": "requestId",
+            "style": "form",
+            "explode": true,
+            "value": "request-1",
+            "serialized": "request-1"
+          }
+        ],
+        "headers": {},
+        "body": {
+          "name": "Example Name",
+          "role": "ROLE_UNSPECIFIED",
+          "username": "Example Name",
+          "email": "user@example.com",
+          "displayName": "Example Name",
+          "avatarUrl": "https://example.com",
+          "description": "example text",
+          "password": "password",
+          "state": "STATE_UNSPECIFIED",
+          "createTime": "2024-01-01T00:00:00Z",
+          "updateTime": "2024-01-01T00:00:00Z"
+        },
+        "bodyKind": "json",
+        "contentType": "application/json",
+        "security": []
+      },
+      "expect": {
+        "method": "POST",
+        "path": "/api/v1/users",
+        "query": "userId=user-1&validateOnly=false&requestId=request-1",
+        "url": "https://behavior.test/api/v1/users?userId=user-1&validateOnly=false&requestId=request-1",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "bodyText": "{\"name\":\"Example Name\",\"role\":\"ROLE_UNSPECIFIED\",\"username\":\"Example Name\",\"email\":\"user@example.com\",\"displayName\":\"Example Name\",\"avatarUrl\":\"https://example.com\",\"description\":\"example text\",\"password\":\"password\",\"state\":\"STATE_UNSPECIFIED\",\"createTime\":\"2024-01-01T00:00:00Z\",\"updateTime\":\"2024-01-01T00:00:00Z\"}",
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"name\":\"Example Name\",\"role\":\"ROLE_UNSPECIFIED\",\"username\":\"Example Name\",\"email\":\"user@example.com\",\"displayName\":\"Example Name\",\"avatarUrl\":\"https://example.com\",\"description\":\"example text\",\"password\":\"password\",\"state\":\"STATE_UNSPECIFIED\",\"createTime\":\"2024-01-01T00:00:00Z\",\"updateTime\":\"2024-01-01T00:00:00Z\"}",
+        "value": {
+          "name": "Example Name",
+          "role": "ROLE_UNSPECIFIED",
+          "username": "Example Name",
+          "email": "user@example.com",
+          "displayName": "Example Name",
+          "avatarUrl": "https://example.com",
+          "description": "example text",
+          "password": "password",
+          "state": "STATE_UNSPECIFIED",
+          "createTime": "2024-01-01T00:00:00Z",
+          "updateTime": "2024-01-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "behavior-25",
+      "operationId": "UserService_GetUser",
+      "kinds": [
+        "error-response",
+        "json-response",
+        "path-serialization",
+        "query-serialization"
+      ],
+      "request": {
+        "method": "GET",
+        "pathTemplate": "/api/v1/users/{user}",
+        "pathParameters": {
+          "user": "user"
+        },
+        "query": [
+          {
+            "name": "readMask",
+            "style": "form",
+            "explode": true,
+            "value": "readMask",
+            "serialized": "readMask"
+          }
+        ],
+        "headers": {},
+        "bodyKind": null,
+        "contentType": null,
+        "security": []
+      },
+      "expect": {
+        "method": "GET",
+        "path": "/api/v1/users/user",
+        "query": "readMask=readMask",
+        "url": "https://behavior.test/api/v1/users/user?readMask=readMask",
+        "headers": {},
+        "bodyText": null,
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"name\":\"Example Name\",\"role\":\"ROLE_UNSPECIFIED\",\"username\":\"Example Name\",\"email\":\"user@example.com\",\"displayName\":\"Example Name\",\"avatarUrl\":\"https://example.com\",\"description\":\"example text\",\"password\":\"password\",\"state\":\"STATE_UNSPECIFIED\",\"createTime\":\"2024-01-01T00:00:00Z\",\"updateTime\":\"2024-01-01T00:00:00Z\"}",
+        "value": {
+          "name": "Example Name",
+          "role": "ROLE_UNSPECIFIED",
+          "username": "Example Name",
+          "email": "user@example.com",
+          "displayName": "Example Name",
+          "avatarUrl": "https://example.com",
+          "description": "example text",
+          "password": "password",
+          "state": "STATE_UNSPECIFIED",
+          "createTime": "2024-01-01T00:00:00Z",
+          "updateTime": "2024-01-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "behavior-26",
+      "operationId": "UserService_UpdateUser",
+      "kinds": [
+        "error-response",
+        "json-request",
+        "json-response",
+        "path-serialization",
+        "query-serialization"
+      ],
+      "request": {
+        "method": "PATCH",
+        "pathTemplate": "/api/v1/users/{user}",
+        "pathParameters": {
+          "user": "user"
+        },
+        "query": [
+          {
+            "name": "updateMask",
+            "style": "form",
+            "explode": true,
+            "value": "2024-01-01T00:00:00Z",
+            "serialized": "2024-01-01T00:00:00Z"
+          },
+          {
+            "name": "allowMissing",
+            "style": "form",
+            "explode": true,
+            "value": false,
+            "serialized": "false"
+          }
+        ],
+        "headers": {},
+        "body": {
+          "name": "Example Name",
+          "role": "ROLE_UNSPECIFIED",
+          "username": "Example Name",
+          "email": "user@example.com",
+          "displayName": "Example Name",
+          "avatarUrl": "https://example.com",
+          "description": "example text",
+          "password": "password",
+          "state": "STATE_UNSPECIFIED",
+          "createTime": "2024-01-01T00:00:00Z",
+          "updateTime": "2024-01-01T00:00:00Z"
+        },
+        "bodyKind": "json",
+        "contentType": "application/json",
+        "security": []
+      },
+      "expect": {
+        "method": "PATCH",
+        "path": "/api/v1/users/user",
+        "query": "updateMask=2024-01-01T00%3A00%3A00Z&allowMissing=false",
+        "url": "https://behavior.test/api/v1/users/user?updateMask=2024-01-01T00%3A00%3A00Z&allowMissing=false",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "bodyText": "{\"name\":\"Example Name\",\"role\":\"ROLE_UNSPECIFIED\",\"username\":\"Example Name\",\"email\":\"user@example.com\",\"displayName\":\"Example Name\",\"avatarUrl\":\"https://example.com\",\"description\":\"example text\",\"password\":\"password\",\"state\":\"STATE_UNSPECIFIED\",\"createTime\":\"2024-01-01T00:00:00Z\",\"updateTime\":\"2024-01-01T00:00:00Z\"}",
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "json",
+        "status": 200,
+        "mediaType": "application/json",
+        "body": "{\"name\":\"Example Name\",\"role\":\"ROLE_UNSPECIFIED\",\"username\":\"Example Name\",\"email\":\"user@example.com\",\"displayName\":\"Example Name\",\"avatarUrl\":\"https://example.com\",\"description\":\"example text\",\"password\":\"password\",\"state\":\"STATE_UNSPECIFIED\",\"createTime\":\"2024-01-01T00:00:00Z\",\"updateTime\":\"2024-01-01T00:00:00Z\"}",
+        "value": {
+          "name": "Example Name",
+          "role": "ROLE_UNSPECIFIED",
+          "username": "Example Name",
+          "email": "user@example.com",
+          "displayName": "Example Name",
+          "avatarUrl": "https://example.com",
+          "description": "example text",
+          "password": "password",
+          "state": "STATE_UNSPECIFIED",
+          "createTime": "2024-01-01T00:00:00Z",
+          "updateTime": "2024-01-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "behavior-27",
+      "operationId": "UserService_ExportMemos",
+      "kinds": [
+        "binary-response",
+        "error-response",
+        "path-serialization"
+      ],
+      "request": {
+        "method": "GET",
+        "pathTemplate": "/api/v1/users/{user}:exportMemos",
+        "pathParameters": {
+          "user": "user"
+        },
+        "query": [],
+        "headers": {},
+        "bodyKind": null,
+        "contentType": null,
+        "security": []
+      },
+      "expect": {
+        "method": "GET",
+        "path": "/api/v1/users/user:exportMemos",
+        "query": "",
+        "url": "https://behavior.test/api/v1/users/user:exportMemos",
+        "headers": {},
+        "bodyText": null,
+        "multipartFields": null
+      },
+      "response": {
+        "kind": "bytes",
+        "status": 200,
+        "mediaType": "*/*",
+        "body": "null",
+        "value": 4
+      }
+    }
+  ]
+}
