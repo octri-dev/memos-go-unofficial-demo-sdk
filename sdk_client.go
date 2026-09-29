@@ -4,14 +4,14 @@
 package sdk
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"reflect"
-	"runtime"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -249,16 +249,147 @@ func EncodePathSegment(value any) string {
 	return escaped
 }
 
-// OperationHeaders converts typed header values and omits nil optionals.
-func OperationHeaders(values map[string]any) map[string]string {
+// OperationHeaders converts typed header values and omits nil optionals. A
+// header named in exploded sends its object members as `k=v`.
+func OperationHeaders(values map[string]any, exploded ...string) map[string]string {
 	headers := map[string]string{}
 	for name, value := range values {
 		if isNilValue(value) {
 			continue
 		}
-		headers[name] = scalarString(value)
+		headers[name] = simpleValue(value, containsString(exploded, name))
 	}
 	return headers
+}
+
+// OperationCookies builds the `Cookie` header for `form`-style cookie
+// parameters. An exploded array repeats its name and an exploded object sends
+// one pair per member; a cookie named in unexploded sends one pair.
+func OperationCookies(values map[string]any, unexploded ...string) map[string]string {
+	names := make([]string, 0, len(values))
+	for name := range values {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	pairs := []string{}
+	add := func(name, text string) {
+		pairs = append(pairs, name+"="+strings.ReplaceAll(url.QueryEscape(text), "+", "%20"))
+	}
+	for _, name := range names {
+		value := values[name]
+		if isNilValue(value) {
+			continue
+		}
+		explode := !containsString(unexploded, name)
+		if items, ok := sliceItems(value); ok && explode {
+			for _, item := range items {
+				add(name, scalarString(item))
+			}
+		} else if members, ok := objectMembers(value); ok && explode {
+			for _, member := range members {
+				add(member[0], member[1])
+			}
+		} else {
+			add(name, simpleValue(value, false))
+		}
+	}
+	if len(pairs) == 0 {
+		return map[string]string{}
+	}
+	return map[string]string{"Cookie": strings.Join(pairs, "; ")}
+}
+
+// MergeHeaders combines header maps; later maps win.
+func MergeHeaders(maps ...map[string]string) map[string]string {
+	merged := map[string]string{}
+	for _, headers := range maps {
+		for name, value := range headers {
+			merged[name] = value
+		}
+	}
+	return merged
+}
+
+// JSONParameter returns a parameter declared with JSON `content` as its JSON
+// text, or nil for an omitted optional.
+func JSONParameter(value any) any {
+	if isNilValue(value) {
+		return nil
+	}
+	encoded, err := json.Marshal(value)
+	if err != nil {
+		return scalarString(value)
+	}
+	return string(encoded)
+}
+
+// simpleValue renders a `simple`-style value: slice items, or object members
+// as `k,v` (`k=v` when exploded), joined by commas.
+func simpleValue(value any, explode bool) string {
+	if items, ok := sliceItems(value); ok {
+		texts := make([]string, len(items))
+		for index, item := range items {
+			texts[index] = scalarString(item)
+		}
+		return strings.Join(texts, ",")
+	}
+	if members, ok := objectMembers(value); ok {
+		separator := ","
+		if explode {
+			separator = "="
+		}
+		texts := make([]string, len(members))
+		for index, member := range members {
+			texts[index] = member[0] + separator + member[1]
+		}
+		return strings.Join(texts, ",")
+	}
+	return scalarString(value)
+}
+
+func sliceItems(value any) ([]any, bool) {
+	rv := reflect.Indirect(reflect.ValueOf(value))
+	if (rv.Kind() != reflect.Slice && rv.Kind() != reflect.Array) || rv.Type().Elem().Kind() == reflect.Uint8 {
+		return nil, false
+	}
+	items := make([]any, rv.Len())
+	for index := range items {
+		items[index] = rv.Index(index).Interface()
+	}
+	return items, true
+}
+
+// objectMembers returns a struct's or map's non-null members by wire name, in
+// the order they encode, each value rendered as a scalar.
+func objectMembers(value any) ([][2]string, bool) {
+	rv := reflect.Indirect(reflect.ValueOf(value))
+	if _, isTime := rv.Interface().(time.Time); isTime || (rv.Kind() != reflect.Struct && rv.Kind() != reflect.Map) {
+		return nil, false
+	}
+	encoded, err := json.Marshal(value)
+	if err != nil {
+		return nil, false
+	}
+	decoder := json.NewDecoder(bytes.NewReader(encoded))
+	decoder.UseNumber()
+	if open, err := decoder.Token(); err != nil || open != json.Delim('{') {
+		return nil, false
+	}
+	members := [][2]string{}
+	for decoder.More() {
+		name, err := decoder.Token()
+		if err != nil {
+			return nil, false
+		}
+		var field any
+		if decoder.Decode(&field) != nil {
+			return nil, false
+		}
+		if field != nil {
+			members = append(members, [2]string{name.(string), scalarString(field)})
+		}
+	}
+	return members, true
 }
 
 // RequestContext is passed to an operation's beforeRequest hook. Mutate Query,
@@ -502,194 +633,4 @@ type exchangeMeta struct {
 	requestID  string
 	latency    time.Duration
 	attempt    int
-}
-
-func exchange(ctx context.Context, cfg *ClientConfig, method, path string, opts *RequestOpts) (exchangeMeta, []byte, error) {
-	if opts == nil {
-		opts = &RequestOpts{}
-	}
-
-	method = strings.ToUpper(method)
-	// Absolute URLs (used by url-style pagination follow links) bypass BaseURL.
-	var baseURL string
-	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
-		baseURL = path
-	} else {
-		baseURL = cfg.BaseURL + path
-	}
-
-	contentType := opts.ContentType
-	if contentType == "" {
-		contentType = "application/json"
-	}
-
-	hasBody := opts.Body != nil
-	bodyBytes, contentType, err := encodeBody(opts.Body, contentType)
-	if err != nil {
-		return exchangeMeta{}, nil, err
-	}
-
-	call := resolveRequestOptions(opts.Options)
-	retry := mergeRetry(cfg.Retry)
-	if call.retry != nil {
-		retry = mergeRetry(call.retry)
-	}
-	idem := mergeIdempotency(cfg.Idempotency)
-	timeout := cfg.Timeout
-	if call.timeout > 0 {
-		timeout = call.timeout
-	}
-	if timeout <= 0 {
-		timeout = defaultTimeout
-	}
-
-	// One idempotency key per logical request — reused across retries so the
-	// server can deduplicate.
-	idempotencyKey := ""
-	if call.idempotencyKey != nil {
-		idempotencyKey = *call.idempotencyKey
-	} else if idem.Enabled && containsString(idem.Methods, method) {
-		idempotencyKey, err = generateIdempotencyKey()
-		if err != nil {
-			return exchangeMeta{}, nil, &SdkNetworkError{Cause: err}
-		}
-	}
-
-	dispatch := composeMiddleware(cfg.Middleware, coreTransport(timeout))
-
-	for attempt := 1; attempt <= retry.MaxAttempts; attempt++ {
-		// Auth may mutate per-attempt (e.g. OAuth refresh). Re-apply on every retry.
-		query := map[string]any{}
-		for k, v := range opts.Query {
-			query[k] = v
-		}
-		headers, err := buildHeaders(ctx, cfg, contentType, hasBody, query, opts.OperationID)
-		if err != nil {
-			return exchangeMeta{}, nil, err
-		}
-		for k, v := range opts.Headers {
-			headers[k] = v
-		}
-		for k, v := range call.headers {
-			headers[k] = v
-		}
-		if idempotencyKey != "" {
-			headers[idem.HeaderName] = idempotencyKey
-		}
-		rawURL := baseURL
-		if len(query) > 0 {
-			rawURL = appendQueryString(rawURL, query)
-		}
-
-		req := &SdkRequest{
-			Method:      method,
-			URL:         rawURL,
-			Headers:     headers,
-			Body:        bodyBytes,
-			ContentType: contentType,
-			OperationID: opts.OperationID,
-			Attempt:     attempt,
-			Meta:        map[string]any{},
-		}
-
-		resp, err := dispatch(ctx, req)
-		if err != nil {
-			if errors.Is(err, context.DeadlineExceeded) {
-				if attempt < retry.MaxAttempts {
-					sleepBackoff(ctx, retry, attempt, "")
-					continue
-				}
-				return exchangeMeta{}, nil, logAndReturn(cfg, method, path, opts.OperationID, &SdkTimeoutError{Elapsed: timeout})
-			}
-			if attempt < retry.MaxAttempts {
-				sleepBackoff(ctx, retry, attempt, "")
-				continue
-			}
-			return exchangeMeta{}, nil, logAndReturn(cfg, method, path, opts.OperationID, &SdkNetworkError{Cause: err})
-		}
-
-		meta := exchangeMeta{
-			statusCode: resp.StatusCode,
-			headers:    resp.Headers,
-			requestID:  resp.RequestID,
-			latency:    resp.Latency,
-			attempt:    resp.Attempt,
-		}
-
-		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-			if cfg.OnResponse != nil {
-				cfg.OnResponse(meta.statusCode, meta.headers, meta.requestID, meta.latency, meta.attempt)
-			}
-			return meta, resp.Body, nil
-		}
-
-		if attempt < retry.MaxAttempts && shouldRetryStatus(method, resp.StatusCode, retry.RetryOn) {
-			sleepBackoff(ctx, retry, attempt, resp.Headers["retry-after"])
-			continue
-		}
-
-		return exchangeMeta{}, nil, logAndReturn(cfg, method, path, opts.OperationID, &SdkHttpError{
-			StatusCode: resp.StatusCode,
-			StatusText: http.StatusText(resp.StatusCode),
-			Body:       resp.Body,
-			Headers:    resp.Headers,
-			RequestID:  resp.RequestID,
-		})
-	}
-
-	return exchangeMeta{}, nil, &SdkNetworkError{Cause: fmt.Errorf("request '%s' produced no attempts", opts.OperationID)}
-}
-
-// logAndReturn fires the error logger (when configured) and returns the error
-// unchanged, so terminal failures can be wrapped inline at each return site.
-func logAndReturn(cfg *ClientConfig, method, path, operationID string, err error) error {
-	logError(cfg, method, path, operationID, err)
-	return err
-}
-
-// errorName maps a typed SDK error to the name the monitoring backend groups on.
-func errorName(err error) string {
-	switch err.(type) {
-	case *SdkHttpError:
-		return "SdkHttpError"
-	case *SdkValidationError:
-		return "SdkValidationError"
-	case *SdkNetworkError:
-		return "SdkNetworkError"
-	case *SdkTimeoutError:
-		return "SdkTimeoutError"
-	default:
-		return "error"
-	}
-}
-
-// requestIDOf returns the request id carried by the typed SDK errors, if any.
-func requestIDOf(err error) string {
-	switch e := err.(type) {
-	case *SdkHttpError:
-		return e.RequestID
-	case *SdkNetworkError:
-		return e.RequestID
-	case *SdkTimeoutError:
-		return e.RequestID
-	default:
-		return ""
-	}
-}
-
-const sourceContextLines = 5
-
-// frameInApp reports whether a source file belongs to the application rather
-// than the Go runtime or an installed module.
-func frameInApp(file string) bool {
-	if file == "" {
-		return false
-	}
-	if strings.Contains(file, "/pkg/mod/") {
-		return false
-	}
-	if root := runtime.GOROOT(); root != "" && strings.HasPrefix(file, root) {
-		return false
-	}
-	return true
 }

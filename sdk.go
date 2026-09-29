@@ -190,8 +190,8 @@ func (sdk *AuthServiceNamespace) GetCurrentUser(ctx context.Context, opts ...Req
 // RefreshToken exchanges the refresh token in the HttpOnly cookie for a new short-lived access token. Send the request with the refresh token cookie; the response includes the token's expiration time.
 //
 // RefreshToken exchanges a valid refresh token for a new access token. The refresh token is read from the HttpOnly cookie. Returns a new short-lived access token.
-func (sdk *AuthServiceNamespace) RefreshToken(ctx context.Context, opts ...RequestOption) (*RefreshTokenResponse, error) {
-	return AuthServiceRefreshToken(ctx, sdk.config, opts...)
+func (sdk *AuthServiceNamespace) RefreshToken(ctx context.Context, params AuthServiceRefreshTokenParams, opts ...RequestOption) (*RefreshTokenResponse, error) {
+	return AuthServiceRefreshToken(ctx, sdk.config, params, opts...)
 }
 
 // SignIn authenticates a user with password credentials or an SSO provider. Supply the relevant credential object; password sign-in requires `username` and `password`, while SSO sign-in requires `idpName`, `code`, and `redirectUri`. The response includes an access token and sets a refresh-token cookie.

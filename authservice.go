@@ -20,12 +20,18 @@ func AuthServiceGetCurrentUser(ctx context.Context, clientConfig ClientConfig, o
 	return &resp.Data, nil
 }
 
+type AuthServiceRefreshTokenParams struct {
+	Body RefreshTokenRequest
+}
+
 // AuthServiceRefreshToken exchanges the refresh token in the HttpOnly cookie for a new short-lived access token. Send the request with the refresh token cookie; the response includes the token's expiration time.
 //
 // RefreshToken exchanges a valid refresh token for a new access token. The refresh token is read from the HttpOnly cookie. Returns a new short-lived access token.
-func AuthServiceRefreshToken(ctx context.Context, clientConfig ClientConfig, opts ...RequestOption) (*RefreshTokenResponse, error) {
+func AuthServiceRefreshToken(ctx context.Context, clientConfig ClientConfig, params AuthServiceRefreshTokenParams, opts ...RequestOption) (*RefreshTokenResponse, error) {
+	body := params.Body
 
 	resp, err := DoCfg[RefreshTokenResponse](ctx, &clientConfig, "POST", "/api/v1/auth/refresh", &RequestOpts{
+		Body:        body,
 		OperationID: "AuthServiceRefreshToken",
 		Options:     opts,
 	})

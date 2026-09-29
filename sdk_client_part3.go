@@ -14,11 +14,213 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 	"unicode"
 )
+
+func buildHeaders(ctx context.Context, cfg *ClientConfig, contentType string, hasBody bool, query map[string]any, operationHeaders map[string]string, operationID string) (map[string]string, error) {
+	headers := map[string]string{}
+	if cfg.Auth != nil {
+		for k, v := range cfg.Auth.Headers {
+			headers[k] = v
+		}
+	}
+	// Before auth, so an apiKey cookie joins the operation's cookies.
+	for k, v := range operationHeaders {
+		headers[k] = v
+	}
+	if err := applyAuth(ctx, cfg, headers, query, operationID); err != nil {
+		return nil, err
+	}
+	if hasBody {
+		headers["Content-Type"] = contentType
+	}
+	return headers, nil
+}
+
+func mergeRetry(override *RetryConfig) RetryConfig {
+	r := defaultRetry
+	if override == nil {
+		return r
+	}
+	if override.MaxAttempts > 0 {
+		r.MaxAttempts = override.MaxAttempts
+	}
+	if len(override.RetryOn) > 0 {
+		r.RetryOn = override.RetryOn
+	}
+	if override.Backoff > 0 {
+		r.Backoff = override.Backoff
+	}
+	if override.MaxBackoff > 0 {
+		r.MaxBackoff = override.MaxBackoff
+	}
+	return r
+}
+
+func shouldRetryStatus(method string, status int, retryOn []int) bool {
+	allowed := false
+	for _, code := range retryOn {
+		if code == status {
+			allowed = true
+			break
+		}
+	}
+	if !allowed {
+		return false
+	}
+	if _, ok := idempotentMethods[method]; ok {
+		return true
+	}
+	_, ok := alwaysRetryableStatuses[status]
+	return ok
+}
+
+func sleepBackoff(ctx context.Context, retry RetryConfig, attempt int, retryAfter string) {
+	if retryAfter != "" {
+		if seconds, err := strconv.Atoi(strings.TrimSpace(retryAfter)); err == nil && seconds > 0 {
+			d := time.Duration(seconds) * time.Second
+			if d > retry.MaxBackoff {
+				d = retry.MaxBackoff
+			}
+			waitOrCancel(ctx, d)
+			return
+		}
+		if t, err := http.ParseTime(retryAfter); err == nil {
+			d := time.Until(t)
+			if d < 0 {
+				d = 0
+			}
+			if d > retry.MaxBackoff {
+				d = retry.MaxBackoff
+			}
+			waitOrCancel(ctx, d)
+			return
+		}
+	}
+	exp := retry.Backoff * (1 << (attempt - 1))
+	jitter := time.Duration(mrand.Int63n(int64(retry.Backoff)))
+	d := exp + jitter
+	if d > retry.MaxBackoff {
+		d = retry.MaxBackoff
+	}
+	waitOrCancel(ctx, d)
+}
+
+func waitOrCancel(ctx context.Context, d time.Duration) {
+	if d <= 0 {
+		return
+	}
+	timer := time.NewTimer(d)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+	case <-timer.C:
+	}
+}
+
+// The query encoding every SDK in the family shares: RFC 3986 unreserved plus
+// the sub-delimiters a URI component may carry literally. url.QueryEscape would
+// percent-encode those sub-delimiters and write a space as `+`, which is a
+// literal plus in a URI query and only means a space to a parser reading the
+// component as an HTML form body.
+func encodeQueryComponent(value string) string {
+	var out strings.Builder
+	for _, b := range []byte(value) {
+		switch {
+		case b >= 'A' && b <= 'Z', b >= 'a' && b <= 'z', b >= '0' && b <= '9',
+			b == '-', b == '_', b == '.', b == '~', b == '!', b == '*', b == '\'', b == '(', b == ')':
+			out.WriteByte(b)
+		default:
+			fmt.Fprintf(&out, "%%%02X", b)
+		}
+	}
+	return out.String()
+}
+
+func encodeQueryValues(values url.Values) string {
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	pairs := make([]string, 0, len(values))
+	for _, key := range keys {
+		name := encodeQueryComponent(key)
+		for _, value := range values[key] {
+			pairs = append(pairs, name+"="+encodeQueryComponent(value))
+		}
+	}
+	return strings.Join(pairs, "&")
+}
+
+func appendQueryString(baseURL string, params map[string]any) string {
+	values := url.Values{}
+	for k, v := range params {
+		appendQueryValue(values, k, v)
+	}
+	encoded := encodeQueryValues(values)
+	if encoded == "" {
+		return baseURL
+	}
+	sep := "?"
+	if strings.Contains(baseURL, "?") {
+		sep = "&"
+	}
+	return baseURL + sep + encoded
+}
+
+func appendQueryValue(values url.Values, key string, v any) {
+	if queryValue, ok := v.(QueryValue); ok {
+		appendStyledQueryValue(values, key, queryValue)
+		return
+	}
+	if v == nil {
+		return
+	}
+	rv := reflect.ValueOf(v)
+	if rv.Kind() == reflect.Pointer {
+		if rv.IsNil() {
+			return
+		}
+		v = rv.Elem().Interface()
+		rv = reflect.ValueOf(v)
+	}
+	switch rv.Kind() {
+	case reflect.Slice, reflect.Array:
+		for i := 0; i < rv.Len(); i++ {
+			appendQueryValue(values, key, rv.Index(i).Interface())
+		}
+		return
+	case reflect.String:
+		values.Add(key, rv.String())
+		return
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		values.Add(key, strconv.FormatInt(rv.Int(), 10))
+		return
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		values.Add(key, strconv.FormatUint(rv.Uint(), 10))
+		return
+	case reflect.Float32, reflect.Float64:
+		values.Add(key, strconv.FormatFloat(rv.Float(), 'f', -1, 64))
+		return
+	case reflect.Bool:
+		values.Add(key, strconv.FormatBool(rv.Bool()))
+		return
+	}
+	if t, ok := v.(time.Time); ok {
+		values.Add(key, t.UTC().Format(time.RFC3339))
+		return
+	}
+	encoded, err := json.Marshal(v)
+	if err != nil {
+		return
+	}
+	values.Add(key, strings.Trim(string(encoded), `"`))
+}
 
 func appendStyledQueryValue(values url.Values, key string, descriptor QueryValue) {
 	if isNilValue(descriptor.Value) {
@@ -129,13 +331,10 @@ func StreamCfgWithFormat(ctx context.Context, cfg *ClientConfig, method, path st
 		if query == nil {
 			query = map[string]any{}
 		}
-		headers, err := buildHeaders(ctx, cfg, contentType, opts.Body != nil, query, opts.OperationID)
+		headers, err := buildHeaders(ctx, cfg, contentType, opts.Body != nil, query, opts.Headers, opts.OperationID)
 		if err != nil {
 			errs <- err
 			return
-		}
-		for k, v := range opts.Headers {
-			headers[k] = v
 		}
 		for k, v := range resolveRequestOptions(opts.Options).headers {
 			headers[k] = v
@@ -201,7 +400,8 @@ func StreamCfgWithFormat(ctx context.Context, cfg *ClientConfig, method, path st
 		if streamFormat == "ndjson" {
 			for {
 				line, readErr := reader.ReadString('\n')
-				line = strings.TrimSpace(line)
+				// A JSON text sequence record also starts with RS.
+				line = strings.TrimPrefix(strings.TrimSpace(line), "\x1e")
 				if line != "" {
 					events <- SdkStreamEvent{Event: "message", Data: line}
 				}

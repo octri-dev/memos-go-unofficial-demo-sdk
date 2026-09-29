@@ -9,9 +9,9 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
-	mrand "math/rand"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
@@ -19,11 +19,196 @@ import (
 	"os"
 	"reflect"
 	"runtime"
-	"sort"
-	"strconv"
 	"strings"
 	"time"
 )
+
+func exchange(ctx context.Context, cfg *ClientConfig, method, path string, opts *RequestOpts) (exchangeMeta, []byte, error) {
+	if opts == nil {
+		opts = &RequestOpts{}
+	}
+
+	method = strings.ToUpper(method)
+	// Absolute URLs (used by url-style pagination follow links) bypass BaseURL.
+	var baseURL string
+	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
+		baseURL = path
+	} else {
+		baseURL = cfg.BaseURL + path
+	}
+
+	contentType := opts.ContentType
+	if contentType == "" {
+		contentType = "application/json"
+	}
+
+	hasBody := opts.Body != nil
+	bodyBytes, contentType, err := encodeBody(opts.Body, contentType)
+	if err != nil {
+		return exchangeMeta{}, nil, err
+	}
+
+	call := resolveRequestOptions(opts.Options)
+	retry := mergeRetry(cfg.Retry)
+	if call.retry != nil {
+		retry = mergeRetry(call.retry)
+	}
+	idem := mergeIdempotency(cfg.Idempotency)
+	timeout := cfg.Timeout
+	if call.timeout > 0 {
+		timeout = call.timeout
+	}
+	if timeout <= 0 {
+		timeout = defaultTimeout
+	}
+
+	// One idempotency key per logical request — reused across retries so the
+	// server can deduplicate.
+	idempotencyKey := ""
+	if call.idempotencyKey != nil {
+		idempotencyKey = *call.idempotencyKey
+	} else if idem.Enabled && containsString(idem.Methods, method) {
+		idempotencyKey, err = generateIdempotencyKey()
+		if err != nil {
+			return exchangeMeta{}, nil, &SdkNetworkError{Cause: err}
+		}
+	}
+
+	dispatch := composeMiddleware(cfg.Middleware, coreTransport(timeout))
+
+	for attempt := 1; attempt <= retry.MaxAttempts; attempt++ {
+		// Auth may mutate per-attempt (e.g. OAuth refresh). Re-apply on every retry.
+		query := map[string]any{}
+		for k, v := range opts.Query {
+			query[k] = v
+		}
+		headers, err := buildHeaders(ctx, cfg, contentType, hasBody, query, opts.Headers, opts.OperationID)
+		if err != nil {
+			return exchangeMeta{}, nil, err
+		}
+		for k, v := range call.headers {
+			headers[k] = v
+		}
+		if idempotencyKey != "" {
+			headers[idem.HeaderName] = idempotencyKey
+		}
+		rawURL := baseURL
+		if len(query) > 0 {
+			rawURL = appendQueryString(rawURL, query)
+		}
+
+		req := &SdkRequest{
+			Method:      method,
+			URL:         rawURL,
+			Headers:     headers,
+			Body:        bodyBytes,
+			ContentType: contentType,
+			OperationID: opts.OperationID,
+			Attempt:     attempt,
+			Meta:        map[string]any{},
+		}
+
+		resp, err := dispatch(ctx, req)
+		if err != nil {
+			if errors.Is(err, context.DeadlineExceeded) {
+				if attempt < retry.MaxAttempts {
+					sleepBackoff(ctx, retry, attempt, "")
+					continue
+				}
+				return exchangeMeta{}, nil, logAndReturn(cfg, method, path, opts.OperationID, &SdkTimeoutError{Elapsed: timeout})
+			}
+			if attempt < retry.MaxAttempts {
+				sleepBackoff(ctx, retry, attempt, "")
+				continue
+			}
+			return exchangeMeta{}, nil, logAndReturn(cfg, method, path, opts.OperationID, &SdkNetworkError{Cause: err})
+		}
+
+		meta := exchangeMeta{
+			statusCode: resp.StatusCode,
+			headers:    resp.Headers,
+			requestID:  resp.RequestID,
+			latency:    resp.Latency,
+			attempt:    resp.Attempt,
+		}
+
+		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+			if cfg.OnResponse != nil {
+				cfg.OnResponse(meta.statusCode, meta.headers, meta.requestID, meta.latency, meta.attempt)
+			}
+			return meta, resp.Body, nil
+		}
+
+		if attempt < retry.MaxAttempts && shouldRetryStatus(method, resp.StatusCode, retry.RetryOn) {
+			sleepBackoff(ctx, retry, attempt, resp.Headers["retry-after"])
+			continue
+		}
+
+		return exchangeMeta{}, nil, logAndReturn(cfg, method, path, opts.OperationID, &SdkHttpError{
+			StatusCode: resp.StatusCode,
+			StatusText: http.StatusText(resp.StatusCode),
+			Body:       resp.Body,
+			Headers:    resp.Headers,
+			RequestID:  resp.RequestID,
+		})
+	}
+
+	return exchangeMeta{}, nil, &SdkNetworkError{Cause: fmt.Errorf("request '%s' produced no attempts", opts.OperationID)}
+}
+
+// logAndReturn fires the error logger (when configured) and returns the error
+// unchanged, so terminal failures can be wrapped inline at each return site.
+func logAndReturn(cfg *ClientConfig, method, path, operationID string, err error) error {
+	logError(cfg, method, path, operationID, err)
+	return err
+}
+
+// errorName maps a typed SDK error to the name the monitoring backend groups on.
+func errorName(err error) string {
+	switch err.(type) {
+	case *SdkHttpError:
+		return "SdkHttpError"
+	case *SdkValidationError:
+		return "SdkValidationError"
+	case *SdkNetworkError:
+		return "SdkNetworkError"
+	case *SdkTimeoutError:
+		return "SdkTimeoutError"
+	default:
+		return "error"
+	}
+}
+
+// requestIDOf returns the request id carried by the typed SDK errors, if any.
+func requestIDOf(err error) string {
+	switch e := err.(type) {
+	case *SdkHttpError:
+		return e.RequestID
+	case *SdkNetworkError:
+		return e.RequestID
+	case *SdkTimeoutError:
+		return e.RequestID
+	default:
+		return ""
+	}
+}
+
+const sourceContextLines = 5
+
+// frameInApp reports whether a source file belongs to the application rather
+// than the Go runtime or an installed module.
+func frameInApp(file string) bool {
+	if file == "" {
+		return false
+	}
+	if strings.Contains(file, "/pkg/mod/") {
+		return false
+	}
+	if root := runtime.GOROOT(); root != "" && strings.HasPrefix(file, root) {
+		return false
+	}
+	return true
+}
 
 // frameSourceContext reads a few lines around a frame so the dashboard can show
 // the original code (best-effort: the source must be readable at runtime).
@@ -344,17 +529,23 @@ func (value *NullableValue[T]) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// encodeBody serializes the request body and returns the effective content type
-// — usually the input, but for multipart/form-data the returned type carries the
-// generated boundary, so callers must use the second return value as the header.
 func isJSONMediaType(contentType string) bool {
 	mediaType := strings.ToLower(strings.TrimSpace(strings.SplitN(contentType, ";", 2)[0]))
 	return mediaType == "application/json" || strings.HasSuffix(mediaType, "+json")
 }
 
+// encodeBody serializes the request body and returns the effective content type
+// — usually the input, but for multipart/form-data the returned type carries the
+// generated boundary, so callers must use the second return value as the header.
 func encodeBody(body any, contentType string) ([]byte, string, error) {
 	if body == nil {
 		return nil, contentType, nil
+	}
+	switch strings.ToLower(strings.TrimSpace(strings.SplitN(contentType, ";", 2)[0])) {
+	case "application/x-ndjson", "application/ndjson", "application/jsonl", "application/json-lines", "application/x-jsonlines":
+		return encodeJSONRecords(body, contentType, "")
+	case "application/json-seq":
+		return encodeJSONRecords(body, contentType, "\x1e")
 	}
 	if strings.HasPrefix(contentType, "multipart/form-data") {
 		fields, ok := body.(map[string]any)
@@ -419,6 +610,28 @@ func encodeBody(body any, contentType string) ([]byte, string, error) {
 		// a vendor type) is written as JSON, as the response side reads it.
 		return encodeJSONBody(body, contentType)
 	}
+}
+
+// encodeJSONRecords writes one JSON record per line, each after separator; an
+// array body is sent as its items.
+func encodeJSONRecords(body any, contentType, separator string) ([]byte, string, error) {
+	encoded, err := json.Marshal(body)
+	if err != nil {
+		return nil, "", fmt.Errorf("encode body: %w", err)
+	}
+	records := []json.RawMessage{encoded}
+	if bytes.HasPrefix(encoded, []byte("[")) {
+		if err := json.Unmarshal(encoded, &records); err != nil {
+			return nil, "", fmt.Errorf("encode body: %w", err)
+		}
+	}
+	var buf bytes.Buffer
+	for _, record := range records {
+		buf.WriteString(separator)
+		buf.Write(record)
+		buf.WriteByte('\n')
+	}
+	return buf.Bytes(), contentType, nil
 }
 
 func encodeJSONBody(body any, contentType string) ([]byte, string, error) {
@@ -528,201 +741,4 @@ func scalarString(value any) string {
 		}
 	}
 	return string(encoded)
-}
-
-func buildHeaders(ctx context.Context, cfg *ClientConfig, contentType string, hasBody bool, query map[string]any, operationID string) (map[string]string, error) {
-	headers := map[string]string{}
-	if cfg.Auth != nil {
-		for k, v := range cfg.Auth.Headers {
-			headers[k] = v
-		}
-	}
-	if err := applyAuth(ctx, cfg, headers, query, operationID); err != nil {
-		return nil, err
-	}
-	if hasBody {
-		headers["Content-Type"] = contentType
-	}
-	return headers, nil
-}
-
-func mergeRetry(override *RetryConfig) RetryConfig {
-	r := defaultRetry
-	if override == nil {
-		return r
-	}
-	if override.MaxAttempts > 0 {
-		r.MaxAttempts = override.MaxAttempts
-	}
-	if len(override.RetryOn) > 0 {
-		r.RetryOn = override.RetryOn
-	}
-	if override.Backoff > 0 {
-		r.Backoff = override.Backoff
-	}
-	if override.MaxBackoff > 0 {
-		r.MaxBackoff = override.MaxBackoff
-	}
-	return r
-}
-
-func shouldRetryStatus(method string, status int, retryOn []int) bool {
-	allowed := false
-	for _, code := range retryOn {
-		if code == status {
-			allowed = true
-			break
-		}
-	}
-	if !allowed {
-		return false
-	}
-	if _, ok := idempotentMethods[method]; ok {
-		return true
-	}
-	_, ok := alwaysRetryableStatuses[status]
-	return ok
-}
-
-func sleepBackoff(ctx context.Context, retry RetryConfig, attempt int, retryAfter string) {
-	if retryAfter != "" {
-		if seconds, err := strconv.Atoi(strings.TrimSpace(retryAfter)); err == nil && seconds > 0 {
-			d := time.Duration(seconds) * time.Second
-			if d > retry.MaxBackoff {
-				d = retry.MaxBackoff
-			}
-			waitOrCancel(ctx, d)
-			return
-		}
-		if t, err := http.ParseTime(retryAfter); err == nil {
-			d := time.Until(t)
-			if d < 0 {
-				d = 0
-			}
-			if d > retry.MaxBackoff {
-				d = retry.MaxBackoff
-			}
-			waitOrCancel(ctx, d)
-			return
-		}
-	}
-	exp := retry.Backoff * (1 << (attempt - 1))
-	jitter := time.Duration(mrand.Int63n(int64(retry.Backoff)))
-	d := exp + jitter
-	if d > retry.MaxBackoff {
-		d = retry.MaxBackoff
-	}
-	waitOrCancel(ctx, d)
-}
-
-func waitOrCancel(ctx context.Context, d time.Duration) {
-	if d <= 0 {
-		return
-	}
-	timer := time.NewTimer(d)
-	defer timer.Stop()
-	select {
-	case <-ctx.Done():
-	case <-timer.C:
-	}
-}
-
-// The query encoding every SDK in the family shares: RFC 3986 unreserved plus
-// the sub-delimiters a URI component may carry literally. url.QueryEscape would
-// percent-encode those sub-delimiters and write a space as `+`, which is a
-// literal plus in a URI query and only means a space to a parser reading the
-// component as an HTML form body.
-func encodeQueryComponent(value string) string {
-	var out strings.Builder
-	for _, b := range []byte(value) {
-		switch {
-		case b >= 'A' && b <= 'Z', b >= 'a' && b <= 'z', b >= '0' && b <= '9',
-			b == '-', b == '_', b == '.', b == '~', b == '!', b == '*', b == '\'', b == '(', b == ')':
-			out.WriteByte(b)
-		default:
-			fmt.Fprintf(&out, "%%%02X", b)
-		}
-	}
-	return out.String()
-}
-
-func encodeQueryValues(values url.Values) string {
-	keys := make([]string, 0, len(values))
-	for key := range values {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
-	pairs := make([]string, 0, len(values))
-	for _, key := range keys {
-		name := encodeQueryComponent(key)
-		for _, value := range values[key] {
-			pairs = append(pairs, name+"="+encodeQueryComponent(value))
-		}
-	}
-	return strings.Join(pairs, "&")
-}
-
-func appendQueryString(baseURL string, params map[string]any) string {
-	values := url.Values{}
-	for k, v := range params {
-		appendQueryValue(values, k, v)
-	}
-	encoded := encodeQueryValues(values)
-	if encoded == "" {
-		return baseURL
-	}
-	sep := "?"
-	if strings.Contains(baseURL, "?") {
-		sep = "&"
-	}
-	return baseURL + sep + encoded
-}
-
-func appendQueryValue(values url.Values, key string, v any) {
-	if queryValue, ok := v.(QueryValue); ok {
-		appendStyledQueryValue(values, key, queryValue)
-		return
-	}
-	if v == nil {
-		return
-	}
-	rv := reflect.ValueOf(v)
-	if rv.Kind() == reflect.Pointer {
-		if rv.IsNil() {
-			return
-		}
-		v = rv.Elem().Interface()
-		rv = reflect.ValueOf(v)
-	}
-	switch rv.Kind() {
-	case reflect.Slice, reflect.Array:
-		for i := 0; i < rv.Len(); i++ {
-			appendQueryValue(values, key, rv.Index(i).Interface())
-		}
-		return
-	case reflect.String:
-		values.Add(key, rv.String())
-		return
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		values.Add(key, strconv.FormatInt(rv.Int(), 10))
-		return
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		values.Add(key, strconv.FormatUint(rv.Uint(), 10))
-		return
-	case reflect.Float32, reflect.Float64:
-		values.Add(key, strconv.FormatFloat(rv.Float(), 'f', -1, 64))
-		return
-	case reflect.Bool:
-		values.Add(key, strconv.FormatBool(rv.Bool()))
-		return
-	}
-	if t, ok := v.(time.Time); ok {
-		values.Add(key, t.UTC().Format(time.RFC3339))
-		return
-	}
-	encoded, err := json.Marshal(v)
-	if err != nil {
-		return
-	}
-	values.Add(key, strings.Trim(string(encoded), `"`))
 }
